@@ -1,6 +1,9 @@
-public class Adm
+public class Adm : Employee
 {
-    public Adm()
+
+
+
+    public Adm (int id, string name, string email, string password, string cpf) : base(id, name, email, password, cpf)
     {
         
     }
