@@ -1,10 +1,3 @@
-public class Adm : Employee
-{
+namespace AdotaAI.Domain;
 
-
-
-    public Adm (int id, string name, string email, string password, string cpf) : base(id, name, email, password, cpf)
-    {
-        
-    }
-}
+public class Adm(int id, string name, string email, string password, string cpf) : Employee(id, name, email, password, cpf);

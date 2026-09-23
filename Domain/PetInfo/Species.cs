@@ -1,3 +1,5 @@
+namespace AdotaAI.Domain;
+
 public enum Species
 {
     Dog = 1,

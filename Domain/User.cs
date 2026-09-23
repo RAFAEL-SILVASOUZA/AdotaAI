@@ -1,27 +1,14 @@
-public class User
+namespace AdotaAI.Domain;
+
+public class User(int id, string name, string email, string phone, int age, string photo, string password, Sex gender, string address)
 {
-
-    public string Name  { get; private set; } = string.Empty;
-    public string Email { get; private set; } = string.Empty;
-    public string Phone { get; private set; } = string.Empty;
-    public int Age { get; private set; } = 0;
-    public int Id { get; private set; } = 0;
-    public string Photo { get; private set; } = string.Empty;
-    public string Password { get; private set; } = string.Empty;
-    public Sex Gender { get; private set; }
-    public string Address { get; private set; } = string.Empty;
-
-    public User(int id, string name, string email, string phone, int age, string photo, string password, Sex gender, string address)
-    {
-        Id = id;
-        Name = name;
-        Email = email;
-        Phone = phone;
-        Age = age;
-        Photo = photo;
-        Password = password;
-        Gender = gender;
-        Address = address;
-    }
-
+    public int Id { get; private set; } = id;
+    public string Name { get; private set; } = name;
+    public string Email { get; private set; } = email;
+    public string Phone { get; private set; } = phone;
+    public int Age { get; private set; } = age;
+    public string Photo { get; private set; } = photo;
+    public string Password { get; private set; } = password;
+    public Sex Gender { get; private set; } = gender;
+    public string Address { get; private set; } = address;
 }
