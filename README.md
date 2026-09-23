@@ -226,7 +226,7 @@ if (!result.IsValid)
 Siga nesta ordem. A validação de `Pet` já está pronta e serve de modelo para as demais.
 
 - [ ] **1. Entender o exemplo**
-  - Leia a seção [Como rodar o projeto no terminal](#-como-rodar-o-projeto-no-terminal) e siga o passo a passo.
+  - Leia a seção "Como rodar o projeto no terminal" (logo acima) e siga o passo a passo.
   - Leia `Validation/PetValidator.cs` e `Program.cs`.
   - Rode `dotnet build` e confirme que aparece `Build succeeded`.
 
