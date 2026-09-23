@@ -16,6 +16,70 @@ Siga a ordem: leia o disclaimer, veja o que mudou, entenda a validação de `Pet
 
 ---
 
+## 🖥️ Como rodar o projeto no terminal
+
+Antes de começar, você precisa ter o **.NET 8 SDK** instalado no seu computador. Para conferir, abra o terminal e digite:
+
+```bash
+dotnet --version
+```
+
+Se aparecer algo como `8.0.x`, está tudo certo. Se aparecer um erro, baixe o SDK em [dotnet.microsoft.com](https://dotnet.microsoft.com/download) e instale a versão 8.
+
+### O que é o terminal?
+
+É uma janela onde você digita comandos para o computador. No Windows, você pode usar o **PowerShell** (busque por "PowerShell" no menu Iniciar) ou o **Terminal** (busque por "Terminal"). No VS Code, dá para abrir o terminal de dentro mesmo: menu `Terminal` > `New Terminal`.
+
+### Passo a passo
+
+**1. Entre na pasta do projeto**
+
+Abra o terminal e navegue até a pasta onde o projeto está. Se o projeto está em `D:\treinamento\AdotaAI`, digite:
+
+```bash
+cd D:\treinamento\AdotaAI
+```
+
+> `cd` significa "change directory" (mudar de pasta). Sempre que você abrir o terminal, precisa fazer isso para o computador saber onde o projeto está.
+
+**2. Restaure os pacotes**
+
+```bash
+dotnet restore
+```
+
+> **O que isso faz?** O projeto usa "pacotes" (bibliotecas prontas de outras pessoas, como o FluentValidation). O `restore` baixa esses pacotes para o seu computador. Você só precisa rodar isso **na primeira vez** ou quando alguém adicionar um pacote novo. Se já restaurou antes, pode pular.
+
+**3. Compile o projeto (build)**
+
+```bash
+dotnet build
+```
+
+> **O que isso faz?** O `build` transforma seu código C# em algo que o computador consegue executar. Se tudo estiver certo, vai aparecer `Build succeeded`. Se aparecer `Build FAILED`, tem algum erro no código e o terminal vai mostrar qual linha está com problema. **Sempre rode o `build` depois de mudar código** para saber se quebrou algo.
+
+**4. Rode o projeto**
+
+```bash
+dotnet run
+```
+
+> **O que isso faz?** O `run` compila e já executa o projeto. Como este é um projeto web, ele vai abrir um servidor local. No terminal vai aparecer algo como `Now listening on: http://localhost:5000`. Abra esse endereço no navegador para ver se está funcionando.
+>
+> **Para parar o projeto**, volte no terminal e aperte `Ctrl + C`.
+
+### Resumo rápido (para você decorar)
+
+| Comando | O que faz | Quando usar |
+|---------|-----------|-------------|
+| `dotnet restore` | Baixa os pacotes | Primeira vez ou quando adicionar pacote novo |
+| `dotnet build` | Compila o código | Sempre que mudar algo, para checar erros |
+| `dotnet run` | Compila e executa | Quando quiser testar o projeto rodando |
+
+> **Dica:** na maioria das vezes você só vai usar `dotnet build` (para checar se o código compila) e `dotnet run` (para testar). O `restore` é raro.
+
+---
+
 ## 📝 Como fazer commits (Conventional Commits)
 
 Você vai usar o Git para salvar o progresso do trabalho. Cada "commit" é como um **ponto de salvamento** com uma mensagem explicando o que mudou. Para manter o histórico organizado e fácil de ler, usamos o padrão **Conventional Commits**.
@@ -162,8 +226,9 @@ if (!result.IsValid)
 Siga nesta ordem. A validação de `Pet` já está pronta e serve de modelo para as demais.
 
 - [ ] **1. Entender o exemplo**
+  - Leia a seção [Como rodar o projeto no terminal](#-como-rodar-o-projeto-no-terminal) e siga o passo a passo.
   - Leia `Validation/PetValidator.cs` e `Program.cs`.
-  - Rode o projeto (`dotnet run`) e confirme que compila sem erros.
+  - Rode `dotnet build` e confirme que aparece `Build succeeded`.
 
 - [ ] **2. Criar o `UserValidator`** (`Validation/UserValidator.cs`)
   - `Name`: obrigatório, 2 a 50 caracteres.
