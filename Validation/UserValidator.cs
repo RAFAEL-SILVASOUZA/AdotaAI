@@ -37,6 +37,9 @@ public class UserValidator : AbstractValidator<User>
             RuleFor(user => user.Photo)
             .NotEmpty().WithMessage("A foto do usuário não pode ser vazia.");
 
+            RuleFor(user => user.Gender)
+            .IsInEnum().WithMessage("O gênero informado do usuário não é válido.");
+
             RuleFor(user => user.Id)
             .GreaterThan(0).WithMessage("O id do usuário deve ser maior que zero.");
     }
