@@ -30,9 +30,6 @@ public class PetValidator : AbstractValidator<Pet>
             .NotEmpty().WithMessage("A descrição de comportamento não pode ser vazia.")
             .MaximumLength(500).WithMessage("A descrição de comportamento não pode ter mais de 500 caracteres.");
 
-        RuleFor(pet => pet.Photo)
-            .NotEmpty().WithMessage("A foto do pet não pode ser vazia.");
-
         RuleFor(pet => pet.IsFemale)
         .NotNull().WithMessage("O sexo do pet deve ser informado.");
 
