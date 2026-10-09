@@ -36,6 +36,9 @@ public class InstitutionValidator : AbstractValidator<Institution>
             .MinimumLength(10).WithMessage("A descrição da instituição deve ter pelo menos 10 caracteres.")
             .MaximumLength(500).WithMessage("A descrição da instituição não pode ter mais de 500 caracteres.");
 
+        RuleFor(institution => institution.Photo)
+            .NotEmpty().WithMessage("A foto da instituição não pode ser vazia.");
+
         RuleFor(institution => institution.Id)
             .GreaterThan(0).WithMessage("O id da instituição deve ser maior que zero.");
     }

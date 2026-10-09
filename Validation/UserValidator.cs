@@ -34,6 +34,9 @@ public class UserValidator : AbstractValidator<User>
             RuleFor(user => user.Age)
             .InclusiveBetween(18, 100).WithMessage("A idade do usuário deve estar entre 18 e 100 anos.");
 
+            RuleFor(user => user.Photo)
+            .NotEmpty().WithMessage("A foto do usuário não pode ser vazia.");
+
             RuleFor(user => user.Id)
             .GreaterThan(0).WithMessage("O id do usuário deve ser maior que zero.");
     }
