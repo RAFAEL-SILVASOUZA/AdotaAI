@@ -228,7 +228,7 @@ O `DbContext` aplica **todas** as configurations do assembly de uma vez:
 modelBuilder.ApplyConfigurationsFromAssembly(typeof(AdotaAIDbContext).Assembly);
 ```
 
-> **O que isso significa para você?** Para uma entidade nova, você **não edita o `DbContext`**. Só cria o arquivo de configuration na pasta `Configuration/` e adiciona um `DbSet`.
+> **O que isso significa para você?** Para uma entidade nova, o `OnModelCreating` do `DbContext` **não muda**. Você só cria o arquivo de configuration na pasta `Configuration/` e adiciona uma linha de `DbSet` no `DbContext`.
 
 ### 3. Implementação no Repositories
 
