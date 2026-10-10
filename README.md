@@ -74,7 +74,9 @@ dotnet build
 dotnet run
 ```
 
-> **O que isso faz?** Compila e executa. Como este é um projeto web, ele abre um servidor local. No terminal vai aparecer algo como `Now listening on: http://localhost:5000`. **Para parar**, aperte `Ctrl + C`.
+> **O que isso faz?** Compila e executa. Como este é um projeto web, ele abre um servidor local. No terminal vai aparecer algo como `Now listening on: http://localhost:5117`. **Para parar**, aperte `Ctrl + C`.
+>
+> **Com `dotnet run` o navegador abre direto no Swagger** (`http://localhost:5117/swagger`). Se você rodar com `--urls` apontando para outra porta, abra o Swagger no endereço: `http://localhost:5093/swagger`.
 
 **6. Rode os testes**
 
@@ -96,6 +98,72 @@ dotnet test tests/AdotaAI.Tests/AdotaAI.Tests.csproj
 | `dotnet test` | Roda os testes | Sempre que mudar código de uma vertical |
 
 > **Dica:** na maioria das vezes você só vai usar `dotnet build` e `dotnet run`. O `restore` é raro.
+
+---
+
+## 🧪 Como usar o Swagger
+
+**O que é o Swagger?** É uma página que o próprio projeto gera, listando todos os endpoints e permitindo chamar cada um pelo navegador. Você não precisa de Postman nem de curl para testar a API: digita o corpo da requisição, aperta o botão e vê o status e a resposta.
+
+**Endereço:** `http://localhost:5117/swagger` (a porta aparece no terminal quando você roda `dotnet run`). Com `dotnet run` o navegador abre sozinho nessa página.
+
+> **Pegadinha:** a raiz `http://localhost:5117/` retorna **404**. Não há endpoint na raiz: o Swagger fica em `/swagger` e os endpoints ficam em `/api/User`. Isso não é erro.
+
+### Passo a passo
+
+**1. Rode o projeto**
+
+```bash
+dotnet run
+```
+
+**2. Abra a página do Swagger**
+
+O navegador abre em `http://localhost:5117/swagger`. Você vê o nome da API (`AdotaAI`, versão `v1`) e uma linha por endpoint, por exemplo `POST /api/User`, `GET /api/User`, `GET /api/User/{id}`, `PUT /api/User`, `DELETE /api/User/{id}`.
+
+**3. Expanda um endpoint**
+
+Clique na linha (ex.: `POST /api/User`). Aparecem:
+- **Parameters**: o que vai na URL (ex.: `id` no `GET /api/User/{id}`).
+- **Body**: o JSON que você envia. Clique em `Schema` para ver os campos obrigatórios, depois em `Model` para ver um exemplo pronto.
+- **Responses**: os códigos que o endpoint devolve (`201`, `200`, `400`, `404`).
+
+**4. Chame o endpoint**
+
+- No `POST /api/User`, clique em `Try it out`.
+- No campo `Body`, edite o JSON de exemplo. Para o `User` atual:
+
+```json
+{
+  "name": "Maria Silva",
+  "email": "maria@email.com",
+  "phone": "11999998888",
+  "age": 25,
+  "photo": "perfil.jpg",
+  "password": "senhaSegura123",
+  "gender": 2,
+  "address": "Rua das Flores, 123"
+}
+```
+
+- Aperte `Execute`. Aparece o status (`201 Created`), o número do id gerado e o endereço `Location`.
+- Agora abra `GET /api/User`, `Try it out`, `Execute`: a lista vem com o usuário que você criou.
+
+**5. Teste os erros**
+
+- Mande o `email` inválido (`"email-invalido"`) no `POST`: você recebe `400` com o corpo `{"message": "Dados do usuário são inválidos.", "errors": [...]}`, as mensagens em português.
+- Mande o mesmo `email` duas vezes: `400` com `"O email informado já está cadastrado."`.
+- Peça `GET /api/User/9999`: `404` com `"Usuário com id 9999 não encontrado."`.
+
+> **`gender` é número, não texto:** o enum `Sex` é guardado como `int` (`Male = 1`, `Female = 2`, `Other = 3`). No JSON, mande `2`. Se mandar `9`, o Swagger mostra `400` com "O gênero informado do usuário não é válido."
+
+### Para que serve no seu trabalho
+
+- **Depois de criar uma vertical:** abra o Swagger e chame cada endpoint. É a checagem rápida de que o controller, o serviço, o repositório e o banco estão ligados.
+- **Depois de gerar migration nova:** se o endpoint responde `500` com erro de tabela que não existe, você esqueceu o `dotnet ef database update`.
+- **Antes de commitar:** rode os testes (`dotnet test`) e confirme no Swagger que o caminho principal funciona.
+
+> **O Swagger só aparece em Development.** Em produção (`ASPNETCORE_ENVIRONMENT=Production`) a página não existe, de propósito: a API pública não expõe o explorador. Os testes integrados rodam em `Production` justamente para exercitar o middleware de erro, não o Swagger.
 
 ---
 
@@ -177,8 +245,9 @@ O registro no DI varre o assembly, então **todo validador novo aparece automati
 | Application | `Application/UserService.cs` | Casos de uso: validar, checar email, chamar repositório |
 | Application | `Application/Exceptions/ValidationFailedException.cs`, `NotFoundException.cs` | Erros da camada |
 | Controllers | `Controllers/UserController.cs` | Fino: só chama o serviço e devolve status |
-| Raiz | `Program.cs` | DI + middleware de erro (400/404) |
+| Raiz | `Program.cs` | DI + middleware de erro (400/404) + Swagger |
 | Raiz | `appsettings.json` | `ConnectionStrings:AdotaAIDb` |
+| Raiz | `Properties/launchSettings.json` | `launchUrl: "swagger"`: o navegador abre no Swagger |
 | Testes | `tests/AdotaAI.Tests/Unit/` | 37 testes da validator e do serviço |
 | Testes | `tests/AdotaAI.Tests/Integration/` | 22 testes do repositório e dos endpoints |
 
@@ -312,9 +381,30 @@ public class UserController(UserService service) : ControllerBase
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<AdotaAI.Application.UserService>();
 builder.Services.AddControllers();
+
+// Swagger: já está registrado no Program.cs, não precisa mudar para cada vertical.
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen(c => c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
+{
+    Title = "AdotaAI",
+    Version = "v1",
+    Description = "API do curso: verticals de User, Pet, Institution, Employee, Veterinarian, Attendant e Adm."
+}));
+```
+
+E no `app`, antes de `MapControllers`:
+
+```csharp
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
 ```
 
 > `Scoped` = uma instância por requisição. É o tempo de vida certo para `DbContext` e repositório.
+>
+> **O Swagger já está pronto no projeto.** Você não registra Swagger por vertical: os endpoints novos aparecem sozinhos na página, porque o `AddEndpointsApiExplorer` descobre os controllers.
 
 ---
 
@@ -333,12 +423,14 @@ Estas são as que doeu descobrir. Leia antes de começar, elas valem para todas 
 | Environment em teste | Em Development a developer exception page responde 500 | `builder.UseEnvironment("Production")` no `WebApplicationFactory` |
 | `AUTOINCREMENT` | O id não volta a 1 depois de `DELETE` | Não asserter `Assert.Equal(1, id)`; asserter `id > 0` e a ordem crescente |
 | `dotnet test` na raiz | Não encontra o projeto de testes sem `.sln` | Passe o caminho do `.csproj` |
+| Raiz do servidor | `http://localhost:5117/` retorna 404 | Swagger é `/swagger`, endpoints são `/api/User` |
+| Swagger em produção | Página não existe com `ASPNETCORE_ENVIRONMENT=Production` | Intencional: use `dotnet run` (Development) para ver o Swagger |
 
 ---
 
 ## ✅ TO-DO para o João
 
-Uma vertical por vez, na ordem abaixo. Cada vertical segue os mesmos 7 passos. **Rode `dotnet build` e `dotnet test` ao final de cada uma e commita.**
+Uma vertical por vez, na ordem abaixo. Cada vertical segue os mesmos 10 passos. **Rode `dotnet build` e `dotnet test` ao final de cada uma e commita.**
 
 > **Ordem dos passos em cada vertical**
 > 1. `Domain/IXRepository.cs` (contrato)
@@ -350,6 +442,7 @@ Uma vertical por vez, na ordem abaixo. Cada vertical segue os mesmos 7 passos. *
 > 7. `Controllers/XController.cs` + registro no `Program.cs`
 > 8. Testes unitários e integrados
 > 9. `dotnet build`, `dotnet test`, commit
+> 10. Abra o Swagger (`dotnet run`), chame cada endpoint novo e confira os status (`201`, `200`, `204`, `400`, `404`)
 
 - [ ] **1. Vertical `Institution`**
   - Comece por ela: `Veterinarian` e `Attendant` têm `InstitutionId`, então a tabela de instituições precisa existir primeiro.
@@ -389,4 +482,5 @@ Uma vertical por vez, na ordem abaixo. Cada vertical segue os mesmos 7 passos. *
 - **Dica de mensagens:** sempre use `.WithMessage(...)` com texto claro em português, para o aluno final entender o que está errado.
 - **Dica de enum:** para propriedades `enum`, use `.IsInEnum()` no validador e `builder.Property(...).IsRequired()` no mapeamento.
 - **Dica de teste:** copie o padrão de `tests/AdotaAI.Tests`. Unit: serviço com fake em memória. Integration: repositório no SQLite real e endpoints com `WebApplicationFactory`. Cada teste começa com a tabela limpa.
+- **Dica de Swagger:** use o Swagger como última checagem de cada vertical. Ele mostra os endpoints novos automaticamente, sem você registrar nada. Se um endpoint responde erro de tabela, falta `dotnet ef database update`.
 - **Dica de teste de id:** o SQLite não zera o contador de ids. Teste que o id foi gerado (`> 0`) e que a lista vem em ordem crescente, nunca que o primeiro id é `1`.
