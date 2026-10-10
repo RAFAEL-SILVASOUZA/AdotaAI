@@ -1,24 +1,28 @@
 # AdotaAI
 
-Bem-vindo, João! Este repositório é parte do curso. Este documento explica **o que já foi ajustado** no projeto, **como funcionam as validações** e **o que ainda falta para você fazer**.
+Bem-vindo, João! Este repositório é parte do curso. Este documento explica **o que já foi feito**, **como funciona a vertical do `User`** (que é o modelo a copiar) e **o que falta você fazer** para as outras entidades.
 
-Siga a ordem: leia o disclaimer, veja o que mudou, entenda a validação de `Pet` (que já está pronta como exemplo) e depois siga o TO-DO.
+Siga a ordem: leia o disclaimer, veja o que mudou, entenda a vertical do `User` arquivo por arquivo, leia as pegadinhas e depois siga o TO-DO.
+
+> A versão anterior deste README (a fase das validações) está guardada em `backup/README.md`. Ela não foi apagada: o que ela pedia já está feito.
 
 ---
 
 ## ⚠️ Disclaimer
 
-- Este projeto usa **.NET 8** e **FluentValidation 12.1.1**.
+- Este projeto usa **.NET 8**, **FluentValidation 12.1.1** e **Entity Framework Core 8.0.10** com **SQLite**.
 - **Atenção a uma pegadinha da v12:** o namespace de registro no DI mudou. As documentações online ainda mostram `using FluentValidation.DependencyInjectionExtensions;`, mas na v12 a extensão `AddValidatorsFromAssembly` está no namespace `FluentValidation` (classe `ServiceCollectionExtensions`). Usar o `using` antigo gera o erro `CS0234`.
 - As classes do domínio usam **primary constructors** (parâmetros no cabeçalho da classe) e **propriedades `private set`**. Não mude isso sem necessidade.
-- Os nomes de arquivos e pastas foram padronizados para **inglês** (ex.: `Atendente.cs` virou `Attendant.cs`). Mantenha esse padrão.
-- **O que é DI (injeção de dependência)?** É um jeito de o próprio projeto "montar" os objetos para você. Em vez de você criar o validador com `new PetValidator()`, você pede para o `Program.cs` registrar ele (com `AddValidatorsFromAssembly`) e, quando precisar, o .NET entrega uma instância pronta. Assim você não se preocupa em criar e gerenciar os objetos manualmente.
+- Os nomes de arquivos e pastas foram padronizados para **inglês** (ex.: `Atendente.cs` virou `Attendant.cs`). Mantenha esse padrão. **Mensagens de erro e comentários ficam em português.**
+- O banco é um arquivo `adotaai.db` na raiz. Ele está no `.gitignore` (`adotaai.db`, `adotaai.db-shm`, `adotaai.db-wal`): cada pessoa gera o seu com `dotnet ef database update`.
+- **O que é DI (injeção de dependência)?** É um jeito de o próprio projeto "montar" os objetos para você. Em vez de você criar o validador com `new PetValidator()`, você pede para o `Program.cs` registrar ele, e quando precisar o .NET entrega uma instância pronta. Você não se preocupa em criar e gerenciar os objetos manualmente.
+- **O que é uma vertical?** É o caminho completo de uma entidade: da entrada HTTP até o banco. Uma vertical tem 7 peças, sempre nos mesmos lugares. Você faz uma por vez, termina, commita, e só então começa a próxima.
 
 ---
 
 ## 🖥️ Como rodar o projeto no terminal
 
-Antes de começar, você precisa ter o **.NET 8 SDK** instalado no seu computador. Para conferir, abra o terminal e digite:
+Antes de começar, você precisa ter o **.NET 8 SDK** instalado. Confira:
 
 ```bash
 dotnet --version
@@ -34,8 +38,6 @@ Se aparecer algo como `8.0.x`, está tudo certo. Se aparecer um erro, baixe o SD
 
 **1. Entre na pasta do projeto**
 
-Abra o terminal e navegue até a pasta onde o projeto está. Se o projeto está em `D:\treinamento\AdotaAI`, digite:
-
 ```bash
 cd D:\treinamento\AdotaAI
 ```
@@ -48,35 +50,52 @@ cd D:\treinamento\AdotaAI
 dotnet restore
 ```
 
-> **O que isso faz?** O projeto usa "pacotes" (bibliotecas prontas de outras pessoas, como o FluentValidation). O `restore` baixa esses pacotes para o seu computador. Você só precisa rodar isso **na primeira vez** ou quando alguém adicionar um pacote novo. Se já restaurou antes, pode pular.
+> **O que isso faz?** O projeto usa "pacotes" (bibliotecas prontas, como FluentValidation e EF Core). O `restore` baixa esses pacotes. Você só precisa rodar isso **na primeira vez** ou quando alguém adicionar um pacote novo.
 
-**3. Compile o projeto (build)**
+**3. Crie o banco (só na primeira vez, ou quando aparecer migration nova)**
+
+```bash
+dotnet ef database update
+```
+
+> **O que isso faz?** Lê as migrations em `Infrastructure/Data/Migrations/` e cria a tabela `Users` no arquivo `adotaai.db`. Se `dotnet ef` não for conhecido, instale: `dotnet tool install --global dotnet-ef`.
+
+**4. Compile o projeto (build)**
 
 ```bash
 dotnet build
 ```
 
-> **O que isso faz?** O `build` transforma seu código C# em algo que o computador consegue executar. Se tudo estiver certo, vai aparecer `Build succeeded`. Se aparecer `Build FAILED`, tem algum erro no código e o terminal vai mostrar qual linha está com problema. **Sempre rode o `build` depois de mudar código** para saber se quebrou algo.
+> **O que isso faz?** Transforma seu código C# em algo que o computador consegue executar. Se tudo estiver certo, vai aparecer `Build succeeded`. Se aparecer `Build FAILED`, tem algum erro no código e o terminal mostra qual linha está com problema. **Sempre rode o `build` depois de mudar código.**
 
-**4. Rode o projeto**
+**5. Rode o projeto**
 
 ```bash
 dotnet run
 ```
 
-> **O que isso faz?** O `run` compila e já executa o projeto. Como este é um projeto web, ele vai abrir um servidor local. No terminal vai aparecer algo como `Now listening on: http://localhost:5000`. Abra esse endereço no navegador para ver se está funcionando.
->
-> **Para parar o projeto**, volte no terminal e aperte `Ctrl + C`.
+> **O que isso faz?** Compila e executa. Como este é um projeto web, ele abre um servidor local. No terminal vai aparecer algo como `Now listening on: http://localhost:5000`. **Para parar**, aperte `Ctrl + C`.
+
+**6. Rode os testes**
+
+```bash
+dotnet test tests/AdotaAI.Tests/AdotaAI.Tests.csproj
+```
+
+> **O que isso faz?** Executa os testes do projeto separado `tests/AdotaAI.Tests`. O caminho do `.csproj` é necessário porque ainda não existe arquivo `.sln` ligando os dois projetos. Para rodar só um grupo: `dotnet test --filter "FullyQualifiedName~Tests.Unit"` ou `--filter "FullyQualifiedName~Tests.Integration"`.
 
 ### Resumo rápido (para você decorar)
 
 | Comando | O que faz | Quando usar |
 |---------|-----------|-------------|
 | `dotnet restore` | Baixa os pacotes | Primeira vez ou quando adicionar pacote novo |
+| `dotnet ef migrations add Nome` | Gera a migration das mudanças no modelo | Depois de mudar entidade ou configuration |
+| `dotnet ef database update` | Aplica as migrations no SQLite | Depois de gerar migration nova |
 | `dotnet build` | Compila o código | Sempre que mudar algo, para checar erros |
 | `dotnet run` | Compila e executa | Quando quiser testar o projeto rodando |
+| `dotnet test` | Roda os testes | Sempre que mudar código de uma vertical |
 
-> **Dica:** na maioria das vezes você só vai usar `dotnet build` (para checar se o código compila) e `dotnet run` (para testar). O `restore` é raro.
+> **Dica:** na maioria das vezes você só vai usar `dotnet build` e `dotnet run`. O `restore` é raro.
 
 ---
 
@@ -97,16 +116,16 @@ tipo: descrição curta do que foi feito
 
 | Tipo | Quando usar | Exemplo |
 |------|-------------|---------|
-| `feat` | Uma funcionalidade **nova** | `feat: adicionar UserValidator` |
+| `feat` | Uma funcionalidade **nova** | `feat: adicionar PetRepository` |
 | `fix` | Uma **correção** de erro | `fix: corrigir mensagem de erro da idade` |
 | `refactor` | Mudança **interna** que não altera o comportamento | `refactor: renomear arquivos do domínio para inglês` |
 | `docs` | Mudança **só em documentos** (como este README) | `docs: atualizar o TO-DO` |
-| `test` | Adição ou mudança de **testes** | `test: adicionar teste do PetValidator` |
-| `chore` | Tarefas de **manutenção** (instalar pacote, limpar código) | `chore: instalar FluentValidation` |
+| `test` | Adição ou mudança de **testes** | `test: adicionar testes da vertical Pet` |
+| `chore` | Tarefas de **manutenção** (instalar pacote, limpar código) | `chore: criar solution do projeto` |
 
 ### Regras simples
 
-1. **Um commit = uma coisa só.** Não misture "adicionar validador" com "renomear arquivo" no mesmo commit. Se fez duas coisas, faça dois commits.
+1. **Um commit = uma coisa só.** Não misture "adicionar repositório" com "registrar DI" no mesmo commit. Se fez duas coisas, faça dois commits.
 2. **Descrição curta.** No máximo uns 50 caracteres. Se precisar de mais detalhes, escreva na parte de baixo da mensagem (depois de uma linha em branco).
 3. **Em português está tudo bem.** A mensagem é para você e para quem for ler o histórico depois.
 4. **Commit com frequência.** Fez um passo do TO-DO? Commita. Assim, se algo der errado, você consegue voltar para um ponto anterior.
@@ -118,167 +137,256 @@ tipo: descrição curta do que foi feito
 git status
 
 # 2. Adicione os arquivos que quer salvar
-git add Validation/UserValidator.cs
+git add Repositories/PetRepository.cs
 
 # 3. Crie o commit com a mensagem no formato certo
-git commit -m "feat: adicionar UserValidator"
+git commit -m "feat: adicionar PetRepository com Entity Framework"
 ```
 
 > **Dica:** se você digitar `git commit` sem a mensagem `-m`, o Git vai abrir um editor para você escrever. Na primeira linha, escreva `tipo: descrição` e salve.
 
 ---
 
-## O que foi ajustado (resumo do git)
+## ✅ O que já está pronto
 
-### 1. Renomeação de arquivos (padronização para inglês)
-| Antes | Depois |
-|-------|--------|
-| `Domain/Atendente.cs` | `Domain/Attendant.cs` |
-| `Domain/Funcionario.cs` | `Domain/Employee.cs` |
-| `Domain/Instituicao.cs` | `Domain/Institution.cs` |
-| `Domain/Usuario.cs` | `Domain/User.cs` |
-| `Domain/Veterinario.cs` | `Domain/Veterinarian.cs` |
+### Fase 1: validações (todas as entidades)
 
-### 2. Reorganização de pastas e enums
-| Antes | Depois |
-|-------|--------|
-| `Domain/Pet info/` | `Domain/PetInfo/` |
-| `Domain/Pet info/TamanhoPet.cs` | `Domain/PetInfo/Size.cs` |
-| `Domain/User info/` | `Domain/UserInfo/` |
+| Arquivo | O que faz |
+|---------|-----------|
+| `Validation/PetValidator.cs` | Regras de `Pet` |
+| `Validation/UserValidator.cs` | Regras de `User` |
+| `Validation/InstitutionValidator.cs` | Regras de `Institution` |
+| `Validation/EmployeeValidator.cs` | Regras de `Employee` |
+| `Validation/VeterinarianValidator.cs` | `Include(new EmployeeValidator())` + `Crmv` |
+| `Validation/AttendantValidator.cs` | `Include(new EmployeeValidator())` + `InstitutionId` |
+| `Validation/AdmValidator.cs` | `Include(new EmployeeValidator())` |
 
-### 3. Refatoração das classes de domínio
-Todas as classes (`Pet`, `User`, `Institution`, `Employee`, `Veterinarian`, `Attendant`, `Adm`) foram:
-- Movidas para o namespace `AdotaAI.Domain`.
-- Refatoradas para usar **primary constructors** (ex.: `public class Pet(string name, ...)`) em vez de atribuir cada propriedade no corpo do construtor.
+O registro no DI varre o assembly, então **todo validador novo aparece automaticamente**, sem registrar um a um.
 
-### 4. Camada de validação (novo)
-- Instalados os pacotes `FluentValidation` e `FluentValidation.DependencyInjectionExtensions` (v12.1.1) no `AdotaAI.csproj`.
-- Criada a pasta `Validation/` com o `PetValidator.cs`.
-- Registro dos validadores no `Program.cs` via `AddValidatorsFromAssembly`.
+### Fase 2: vertical do `User` (o modelo)
+
+| Camada | Arquivo | O que faz |
+|--------|---------|-----------|
+| Domain | `Domain/IUserRepository.cs` | Interface: o contrato, sem dependência de EF |
+| Infrastructure | `Infrastructure/Data/AdotaAIDbContext.cs` | O `DbContext` com `DbSet<User>` |
+| Infrastructure | `Infrastructure/Data/Configuration/UserEntityFrameworkConfiguration.cs` | Mapeamento: tabela, tamanhos, índice único |
+| Infrastructure | `Infrastructure/Data/AdotaAIDbContextFactory.cs` | Factory de design-time para o `dotnet ef` |
+| Infrastructure | `Infrastructure/Data/Migrations/` | Migration `InitialCreate` + snapshot |
+| Repositories | `Repositories/UserRepository.cs` | Implementação do contrato usando EF |
+| Application | `Application/Dto/CreateUserDto.cs`, `UpdateUserDto.cs`, `UserResponseDto.cs` | Entrada e saída da camada |
+| Application | `Application/UserService.cs` | Casos de uso: validar, checar email, chamar repositório |
+| Application | `Application/Exceptions/ValidationFailedException.cs`, `NotFoundException.cs` | Erros da camada |
+| Controllers | `Controllers/UserController.cs` | Fino: só chama o serviço e devolve status |
+| Raiz | `Program.cs` | DI + middleware de erro (400/404) |
+| Raiz | `appsettings.json` | `ConnectionStrings:AdotaAIDb` |
+| Testes | `tests/AdotaAI.Tests/Unit/` | 37 testes da validator e do serviço |
+| Testes | `tests/AdotaAI.Tests/Integration/` | 22 testes do repositório e dos endpoints |
 
 ---
 
-## Como funciona a validação (exemplo: Pet)
+## 🧭 Como funciona a vertical (modelo para copiar)
 
-O validador fica em `Validation/PetValidator.cs`. Ele herda de `AbstractValidator<Pet>` e define uma regra por propriedade:
+A regra de ouro: **cada camada só conhece a de baixo.** O controller não conhece EF, o serviço não conhece HTTP, o repositório é o único que fala com o banco.
+
+### 1. Contrato no Domain
 
 ```csharp
-public class PetValidator : AbstractValidator<Pet>
+namespace AdotaAI.Domain;
+
+public interface IUserRepository
 {
-    public PetValidator()
+    Task AddAsync(User user, CancellationToken ct = default);
+    Task<User?> GetByIdAsync(int id, CancellationToken ct = default);
+    Task<IReadOnlyList<User>> GetAllAsync(CancellationToken ct = default);
+    Task<bool> EmailExistsAsync(string email, CancellationToken ct = default);
+    Task<bool> UpdateAsync(User user, CancellationToken ct = default);
+    Task<bool> DeleteAsync(int id, CancellationToken ct = default);
+}
+```
+
+> **Por que interface?** Porque o serviço depende do contrato, não do banco. Isso permite testar o serviço com um repositório falso em memória, sem SQLite.
+
+### 2. Mapeamento no Infrastructure
+
+```csharp
+public class UserEntityFrameworkConfiguration : IEntityTypeConfiguration<User>
+{
+    public void Configure(EntityTypeBuilder<User> builder)
     {
-        RuleFor(pet => pet.Name)
-            .NotEmpty().WithMessage("O nome do pet não pode ser vazio.")
-            .MinimumLength(2).WithMessage("O nome do pet deve ter pelo menos 2 caracteres.")
-            .MaximumLength(50).WithMessage("O nome do pet não pode ter mais de 50 caracteres.");
-
-        RuleFor(pet => pet.Age)
-            .InclusiveBetween(0, 30).WithMessage("A idade do pet deve estar entre 0 e 30 anos.");
-
-        // ... demais regras
+        builder.ToTable("Users");
+        builder.HasKey(user => user.Id);
+        builder.Property(user => user.Id).ValueGeneratedOnAdd();
+        builder.Property(user => user.Name).IsRequired().HasMaxLength(70);
+        builder.HasIndex(user => user.Email).IsUnique();
     }
 }
 ```
 
-### Regras aplicadas no `Pet`
-| Propriedade | Regra |
-|-------------|-------|
-| `Name` | Obrigatório, 2 a 50 caracteres |
-| `Race` | Obrigatória, 2 a 50 caracteres |
-| `Age` | Entre 0 e 30 |
-| `Photo` | Obrigatório |
-| `VetRecord` | Obrigatório |
-| `BehaviourDesc` | Obrigatório, máx. 500 caracteres |
-| `Id` | Maior que zero |
+O `DbContext` aplica **todas** as configurations do assembly de uma vez:
 
-### Registro no DI (`Program.cs`)
 ```csharp
-using AdotaAI.Validation;
-using FluentValidation;
-
-var builder = WebApplication.CreateBuilder(args);
-
-builder.Services.AddValidatorsFromAssembly(typeof(PetValidator).Assembly);
-
-var app = builder.Build();
+modelBuilder.ApplyConfigurationsFromAssembly(typeof(AdotaAIDbContext).Assembly);
 ```
 
-> O `AddValidatorsFromAssembly` varre o assembly e registra **todos** os validadores que você criar na pasta `Validation/`. Por isso, ao criar um validador novo, ele já fica disponível no DI automaticamente, sem precisar registrar um a um.
+> **O que isso significa para você?** Para uma entidade nova, você **não edita o `DbContext`**. Só cria o arquivo de configuration na pasta `Configuration/` e adiciona um `DbSet`.
 
-### Como usar um validador
+### 3. Implementação no Repositories
+
 ```csharp
-var validator = new PetValidator();
-var result = validator.Validate(pet);
-
-if (!result.IsValid)
+public class UserRepository(AdotaAIDbContext context) : IUserRepository
 {
-    foreach (var error in result.Errors)
+    public async Task AddAsync(User user, CancellationToken ct = default)
     {
-        Console.WriteLine($"{error.PropertyName}: {error.ErrorMessage}");
+        await context.Users.AddAsync(user, ct);
+        await context.SaveChangesAsync(ct);
+    }
+
+    public async Task<User?> GetByIdAsync(int id, CancellationToken ct = default)
+    {
+        return await context.Users.FindAsync([id], ct);
     }
 }
 ```
+
+> `FindAsync` procura pela chave primária. `AsNoTracking()` na listagem evita que o EF rastreie as entidades que só vão ser lidas.
+
+### 4. DTOs na Application
+
+```csharp
+public record CreateUserDto(string Name, string Email, string Phone, int Age,
+    string Photo, string Password, Sex Gender, string Address);
+
+public record UserResponseDto(int Id, string Name, string Email, string Phone,
+    int Age, string Photo, Sex Gender, string Address)
+{
+    public static UserResponseDto FromEntity(User user) =>
+        new(user.Id, user.Name, user.Email, user.Phone, user.Age, user.Photo, user.Gender, user.Address);
+}
+```
+
+> **Repare:** `UserResponseDto` **não tem `Password`**. A senha nunca sai da Application. Use `record` para DTOs: são dados, não comportamento.
+
+### 5. Serviço de caso de uso
+
+```csharp
+public class UserService(IUserRepository repository, IValidator<User> validator)
+{
+    public async Task<int> CreateAsync(CreateUserDto dto, CancellationToken ct = default)
+    {
+        var user = new User(id: 0, name: dto.Name, /* ... */);
+
+        await ValidateAsync(user, ct);
+
+        if (await repository.EmailExistsAsync(dto.Email, ct))
+            throw new ValidationFailedException(["O email informado já está cadastrado."]);
+
+        await repository.AddAsync(user, ct);
+        return user.Id;
+    }
+}
+```
+
+> **`id: 0` no create:** o banco gera o id. O serviço cria a entidade sem id, o EF preenche no `SaveChanges`, e o validator não reclama do zero.
+
+### 6. Controller fino
+
+```csharp
+[ApiController]
+[Route("api/[controller]")]
+public class UserController(UserService service) : ControllerBase
+{
+    [HttpPost]
+    public async Task<IActionResult> Create(CreateUserDto dto, CancellationToken ct)
+    {
+        var id = await service.CreateAsync(dto, ct);
+        return CreatedAtAction(nameof(GetById), new { id }, id);
+    }
+}
+```
+
+> **Fino** significa: nenhuma regra aqui. O controller converte HTTP em chamada de serviço e devolve o status (`201` criado, `200` ok, `204` deletado/atualizado). Os erros viram `400`/`404` no middleware do `Program.cs`.
+
+### 7. Registro no Program.cs
+
+```csharp
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<AdotaAI.Application.UserService>();
+builder.Services.AddControllers();
+```
+
+> `Scoped` = uma instância por requisição. É o tempo de vida certo para `DbContext` e repositório.
+
+---
+
+## 🪰 Pegadinhas que já apareceram
+
+Estas são as que doeu descobrir. Leia antes de começar, elas valem para todas as verticais.
+
+| Pegadinha | O que acontece | Como resolver |
+|-----------|----------------|---------------|
+| Nome `ValidationException` | CS0104: colide com `FluentValidation.ValidationException` | Nomeie `ValidationFailedException` |
+| Regra `Id > 0` no create | POST retorna 400 porque o id ainda é 0 | `.When(user => user.Id != 0)` |
+| Glob do SDK Web | Os arquivos de `tests/` entram no build do projeto principal | `<Compile Remove="tests/**" />` no `AdotaAI.csproj` |
+| `IDesignTimeDbContextFactory` | CS0246 sem o using | `using Microsoft.EntityFrameworkCore.Design;` |
+| `ValidationResult` | CS0246 em testes | `using FluentValidation.Results;` |
+| Pooling do SQLite | Arquivo de teste fica travado no `Dispose` | `Data Source=...;Pooling=False` |
+| Environment em teste | Em Development a developer exception page responde 500 | `builder.UseEnvironment("Production")` no `WebApplicationFactory` |
+| `AUTOINCREMENT` | O id não volta a 1 depois de `DELETE` | Não asserter `Assert.Equal(1, id)`; asserter `id > 0` e a ordem crescente |
+| `dotnet test` na raiz | Não encontra o projeto de testes sem `.sln` | Passe o caminho do `.csproj` |
 
 ---
 
 ## ✅ TO-DO para o João
 
-Siga nesta ordem. A validação de `Pet` já está pronta e serve de modelo para as demais.
+Uma vertical por vez, na ordem abaixo. Cada vertical segue os mesmos 7 passos. **Rode `dotnet build` e `dotnet test` ao final de cada uma e commita.**
 
-- [ ] **1. Entender o exemplo**
-  - Leia a seção "Como rodar o projeto no terminal" (logo acima) e siga o passo a passo.
-  - Leia `Validation/PetValidator.cs` e `Program.cs`.
-  - Rode `dotnet build` e confirme que aparece `Build succeeded`.
+> **Ordem dos passos em cada vertical**
+> 1. `Domain/IXRepository.cs` (contrato)
+> 2. `Infrastructure/Data/Configuration/XEntityFrameworkConfiguration.cs` + `DbSet` no `DbContext`
+> 3. `dotnet ef migrations add NomeDaMigration` e `dotnet ef database update`
+> 4. `Repositories/XRepository.cs`
+> 5. `Application/Dto/` (Create, Update, Response)
+> 6. `Application/XService.cs`
+> 7. `Controllers/XController.cs` + registro no `Program.cs`
+> 8. Testes unitários e integrados
+> 9. `dotnet build`, `dotnet test`, commit
 
-- [ ] **2. Criar o `UserValidator`** (`Validation/UserValidator.cs`)
-  - `Name`: obrigatório, 2 a 50 caracteres.
-  - `Email`: obrigatório, formato de e-mail válido (`EmailAddress()`).
-  - `Phone`: obrigatório, 10 a 15 caracteres.
-  - `Age`: entre 18 e 100.
-  - `Password`: obrigatório, mínimo de 6 caracteres.
-  - `Address`: obrigatório.
-  - `Id`: maior que zero.
+- [ ] **1. Vertical `Institution`**
+  - Comece por ela: `Veterinarian` e `Attendant` têm `InstitutionId`, então a tabela de instituições precisa existir primeiro.
+  - Properties: `Id`, `Name`, `Email`, `Phone`, `Address`, `Photo`, `Password`, `Description`, `Document`, `OperatingHours`.
+  - Índice único em `Email` (mesmo padrão do `User`).
+  - `Document` (CNPJ) e `OperatingHours`: defina o tamanho no mapeamento e diga ao professor o que escolheu.
 
-- [ ] **3. Criar o `InstitutionValidator`** (`Validation/InstitutionValidator.cs`)
-  - `Name`: obrigatório, 2 a 100 caracteres.
-  - `Email`: obrigatório, formato de e-mail válido.
-  - `Phone`: obrigatório.
-  - `Address`: obrigatório.
-  - `Password`: obrigatório, mínimo de 6 caracteres.
-  - `Description`: obrigatório, máx. 500 caracteres.
-  - `Id`: maior que zero.
+- [ ] **2. Vertical `Pet`**
+  - Properties: `Id`, `Name`, `Species`, `Race`, `Age`, `IsFemale`, `PetSize`, `Photo`, `VetRecord`, `BehaviourDesc`, `PetStatus`.
+  - Três enums (`Species`, `Size`, `Status`): ficam guardados como `int`, mesmo padrão do `Sex` no `User`.
+  - `PetValidator` tem `RuleFor(pet => pet.Id).GreaterThan(0)`: aplique `.When(pet => pet.Id != 0)` como foi feito no `UserValidator`.
 
-- [ ] **4. Criar o `EmployeeValidator`** (`Validation/EmployeeValidator.cs`)
-  - `Name`: obrigatório, 2 a 100 caracteres.
-  - `Email`: obrigatório, formato de e-mail válido.
-  - `Password`: obrigatório, mínimo de 6 caracteres.
-  - `CPF`: obrigatório, 11 dígitos.
-  - `Id`: maior que zero.
+- [ ] **3. Vertical `Employee`**
+  - Properties: `Id`, `Name`, `Email`, `Password`, `CPF`.
+  - **Decisão obrigatória:** `Veterinarian`, `Attendant` e `Adm` herdam de `Employee`. O EF precisa de uma estratégia para herança (TPH: uma tabela com tudo, ou TPT: uma tabela por tipo). **Pergunte ao professor qual usar antes de escrever o mapeamento** e registre a resposta no README.
 
-- [ ] **5. Criar o `VeterinarianValidator`** (`Validation/VeterinarianValidator.cs`)
-  - Herde as regras de `Employee` (ou use `Include(new EmployeeValidator())`).
-  - `Crmv`: obrigatório, 5 a 10 caracteres.
-  - `InstitutionId`: maior que zero.
+- [ ] **4. Vertical `Veterinarian`**
+  - Properties próprias: `Crmv`, `InstitutionId`.
+  - `InstitutionId` é referência: decide se você cria `IInstitutionRepository` como navegação ou guarda só o `int`. Alinhe com o professor.
 
-- [ ] **6. Criar o `AttendantValidator`** (`Validation/AttendantValidator.cs`)
-  - Herde as regras de `Employee` (ou use `Include(new EmployeeValidator())`).
-  - `InstitutionId`: maior que zero.
+- [ ] **5. Vertical `Attendant`**
+  - Property própria: `InstitutionId`. Mesmas decisões da vertical `Veterinarian`.
 
-- [ ] **7. Criar o `AdmValidator`** (`Validation/AdmValidator.cs`)
-  - Herde as regras de `Employee` (ou use `Include(new EmployeeValidator())`).
+- [ ] **6. Vertical `Adm`**
+  - Nenhuma property própria: só as de `Employee`.
 
-- [ ] **8. Testar os validadores**
-  - Crie uma classe de teste ou um endpoint temporário para validar cada entidade.
-  - Confirme que mensagens de erro aparecem para dados inválidos.
-
-- [ ] **9. Revisão final**
-  - Rode `dotnet build` e garanta que não há erros.
-  - Confira se todos os validadores estão na pasta `Validation/` (o registro no DI é automático).
+- [ ] **7. Manutenção**
+  - `chore: criar solution do projeto` (arquivo `.sln` ligando `AdotaAI` e `tests/AdotaAI.Tests`), para `dotnet test` funcionar na raiz.
+  - Rode `dotnet build` e `dotnet test` e garanta que nada quebrou.
 
 ---
 
 ## Dicas
 
-- **Dica de reuso:** para `Veterinarian`, `Attendant` e `Adm` (que herdam de `Employee`), use `Include(new EmployeeValidator())` no construtor do validador para reaproveitar as regras do pai e só adicionar as regras específicas.
+- **Dica de reuso:** o `AdotaAIDbContext` não precisa mudar quando você cria uma vertical. Só o `DbSet` e o arquivo de configuration.
+- **Dica de migration:** rode `dotnet ef migrations add Nome` com o projeto parado. Nomeie a migration pelo que ela faz (`AddPetTable`, não `Migration1`).
 - **Dica de mensagens:** sempre use `.WithMessage(...)` com texto claro em português, para o aluno final entender o que está errado.
-- **Dica de enum:** para propriedades do tipo `enum` (ex.: `Species`, `Size`, `Status`), você pode usar `.IsInEnum()` para garantir que o valor é válido.
+- **Dica de enum:** para propriedades `enum`, use `.IsInEnum()` no validador e `builder.Property(...).IsRequired()` no mapeamento.
+- **Dica de teste:** copie o padrão de `tests/AdotaAI.Tests`. Unit: serviço com fake em memória. Integration: repositório no SQLite real e endpoints com `WebApplicationFactory`. Cada teste começa com a tabela limpa.
+- **Dica de teste de id:** o SQLite não zera o contador de ids. Teste que o id foi gerado (`> 0`) e que a lista vem em ordem crescente, nunca que o primeiro id é `1`.
