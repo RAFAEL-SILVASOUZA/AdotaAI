@@ -1,79 +1,51 @@
 using AdotaAI.Domain;
+using AdotaAI.Infrastructure.Data;
+using AdotaAI.Repositories;
 using AdotaAI.Validation;
 using FluentValidation;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddValidatorsFromAssembly(typeof(PetValidator).Assembly);
+// DI: DbContext (SQLite)
+builder.Services.AddDbContext<AdotaAIDbContext>(options =>
+    options.UseSqlite(builder.Configuration.GetConnectionString("AdotaAIDb")));
+
+// DI: validadores (varre o assembly e registra todos os validators)
+builder.Services.AddValidatorsFromAssembly(typeof(UserValidator).Assembly);
+
+// DI: repositório e serviço da vertical User
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<AdotaAI.Application.UserService>();
+
+builder.Services.AddControllers();
 
 var app = builder.Build();
 
-// TESTANDO
-
-Console.WriteLine("\nTESTE USER INVÁLIDO");
-var userInvalido = new User(
-    id: 0,
-    name: "A",
-    email: "email-invalido",
-    password: "123",
-    phone: "123",
-    address: "Rua",
-    age: 19,
-    photo: "",
-    gender: (Sex)2 
-);
-
-var userValidator = new UserValidator();
-var resUser = userValidator.Validate(userInvalido);
-
-if (!resUser.IsValid)
+// Tratamento de erros da camada Application (controller permanece fino).
+app.Use(async (context, next) =>
 {
-    foreach (var error in resUser.Errors)
-        Console.WriteLine($"[x] {error.PropertyName}: {error.ErrorMessage}");
-}
+    try
+    {
+        await next(context);
+    }
+    catch (AdotaAI.Application.Exceptions.ValidationFailedException ex)
+    {
+        context.Response.StatusCode = StatusCodes.Status400BadRequest;
+        await context.Response.WriteAsJsonAsync(new { message = ex.Message, errors = ex.Errors });
+    }
+    catch (AdotaAI.Application.Exceptions.NotFoundException ex)
+    {
+        context.Response.StatusCode = StatusCodes.Status404NotFound;
+        await context.Response.WriteAsJsonAsync(new { message = ex.Message });
+    }
+});
 
-
-Console.WriteLine("\nTESTE VETERINÁRIO INVÁLIDO");
-var vetInvalido = new Veterinarian(
-    id: 0,
-    name: "Dr",
-    email: "email-invalido",
-    password: "123",
-    cpf: "123",
-    crmv: "12",
-    institutionId: 0
-);
-
-var vetValidator = new VeterinarianValidator();
-var resVet = vetValidator.Validate(vetInvalido);
-
-if (!resVet.IsValid)
-{
-    foreach (var error in resVet.Errors)
-        Console.WriteLine($"[x] {error.PropertyName}: {error.ErrorMessage}");
-}
-
-
-Console.WriteLine("\nTESTE USER VÁLIDO");
-var userValido = new User(
-    id: 1,
-    name: "Maria Silva",
-    email: "maria@email.com",
-    password: "senhaSegura123",
-    phone: "11999998888",
-    address: "Rua das Flores, 123",
-    age: 25,
-    photo: "perfil.jpg",
-    gender: Sex.Female
-);
-
-var resUserValido = userValidator.Validate(userValido);
-if (resUserValido.IsValid)
-{
-    Console.WriteLine("[v] Usuário válido.");
-}
-Console.WriteLine("FIM\n");
-
-app.MapGet("/", () => "Hello World!");
+app.MapControllers();
 
 app.Run();
+
+// Permite que WebApplicationFactory (projeto de testes) referencie o entry point.
+public partial class Program
+{
+}
