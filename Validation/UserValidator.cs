@@ -40,7 +40,9 @@ public class UserValidator : AbstractValidator<User>
             RuleFor(user => user.Gender)
             .IsInEnum().WithMessage("O gênero informado do usuário não é válido.");
 
+            // O id é gerado pelo banco: a regra só se aplica a um usuário já persistido.
             RuleFor(user => user.Id)
-            .GreaterThan(0).WithMessage("O id do usuário deve ser maior que zero.");
+            .GreaterThan(0).WithMessage("O id do usuário deve ser maior que zero.")
+            .When(user => user.Id != 0);
     }
 }
