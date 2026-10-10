@@ -20,7 +20,24 @@ builder.Services.AddScoped<AdotaAI.Application.UserService>();
 
 builder.Services.AddControllers();
 
+// Swagger: explorador de endpoints e interface para chamar os endpoints.
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen(c =>
+    c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
+    {
+        Title = "AdotaAI",
+        Version = "v1",
+        Description = "API do curso: verticals de User, Pet, Institution, Employee, Veterinarian, Attendant e Adm."
+    }));
+
 var app = builder.Build();
+
+// Swagger só em Development: em produção a API não expõe o explorador.
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
 
 // Tratamento de erros da camada Application (controller permanece fino).
 app.Use(async (context, next) =>
