@@ -1,2 +1,7 @@
 bin
 obj
+.agent-plataform
+.agent-platform/
+adotaai.db
+adotaai.db-shm
+adotaai.db-wal
