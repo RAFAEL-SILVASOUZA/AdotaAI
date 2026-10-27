@@ -6,6 +6,7 @@ namespace AdotaAI.Infrastructure.Data;
 public class AdotaAIDbContext(DbContextOptions<AdotaAIDbContext> options) : DbContext(options)
 {
     public DbSet<User> Users => Set<User>();
+    public DbSet<Institution> Institutions => Set<Institution>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
