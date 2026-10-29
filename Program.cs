@@ -19,6 +19,8 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<AdotaAI.Application.UserService>();
 builder.Services.AddScoped<IInstitutionRepository, InstitutionRepository>();
 builder.Services.AddScoped<AdotaAI.Application.InstitutionService>();
+builder.Services.AddScoped<IPetRepository, PetRepository>();
+builder.Services.AddScoped<AdotaAI.Application.PetService>();
 
 builder.Services.AddControllers();
 
