@@ -7,6 +7,7 @@ public class AdotaAIDbContext(DbContextOptions<AdotaAIDbContext> options) : DbCo
 {
     public DbSet<User> Users => Set<User>();
     public DbSet<Institution> Institutions => Set<Institution>();
+    public DbSet<Pet> Pets => Set<Pet>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

@@ -24,34 +24,42 @@ namespace AdotaAI.Infrastructure.Data.Migrations
 
                     b.Property<string>("Address")
                         .IsRequired()
+                        .HasMaxLength(100)
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Description")
                         .IsRequired()
+                        .HasMaxLength(500)
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Document")
                         .IsRequired()
+                        .HasMaxLength(18)
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Email")
                         .IsRequired()
+                        .HasMaxLength(100)
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Name")
                         .IsRequired()
+                        .HasMaxLength(70)
                         .HasColumnType("TEXT");
 
                     b.Property<string>("OperatingHours")
                         .IsRequired()
+                        .HasMaxLength(100)
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Password")
                         .IsRequired()
+                        .HasMaxLength(25)
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Phone")
                         .IsRequired()
+                        .HasMaxLength(15)
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Photo")
@@ -60,7 +68,64 @@ namespace AdotaAI.Infrastructure.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Institutions");
+                    b.HasIndex("Email")
+                        .IsUnique();
+
+                    b.ToTable("Institutions", (string)null);
+                });
+
+            modelBuilder.Entity("AdotaAI.Domain.Pet", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("Age")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("BehaviourDesc")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("InstitutionId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("IsFemale")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(70)
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("PetSize")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("PetStatus")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Photo")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Race")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Species")
+                        .HasMaxLength(50)
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("VetRecord")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Pets", (string)null);
                 });
 
             modelBuilder.Entity("AdotaAI.Domain.User", b =>
