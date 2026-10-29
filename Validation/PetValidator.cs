@@ -35,5 +35,8 @@ public class PetValidator : AbstractValidator<Pet>
 
         RuleFor(pet => pet.Id)
             .GreaterThan(0).WithMessage("O id do pet deve ser maior que zero.");
+
+        RuleFor(pet => pet.InstitutionId)
+            .GreaterThan(0).WithMessage("O id da instituição deve ser maior que zero.");
     }
 }

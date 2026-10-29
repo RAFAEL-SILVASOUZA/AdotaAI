@@ -1,6 +1,6 @@
 namespace AdotaAI.Domain;
 
-public class Pet(string name, Species species, string race, int age, bool isFemale, Size petSize, string photo, string vetRecord, int id, string behaviourDesc, Status petStatus)
+public class Pet(string name, Species species, string race, int age, bool isFemale, Size petSize, string photo, string vetRecord, int id, string behaviourDesc, Status petStatus, int institutionId)
 {
     public string Name { get; private set; } = name;
     public Species Species { get; private set; } = species;
@@ -13,4 +13,5 @@ public class Pet(string name, Species species, string race, int age, bool isFema
     public int Id { get; private set; } = id;
     public string BehaviourDesc { get; private set; } = behaviourDesc;
     public Status PetStatus { get; private set; } = petStatus;
+    public int InstitutionId { get; private set; } =  institutionId;
 }
