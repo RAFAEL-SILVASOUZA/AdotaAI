@@ -22,12 +22,11 @@ public class EmployeeValidator : AbstractValidator<Employee>
             .MinimumLength(6).WithMessage("A senha do funcionário deve ter pelo menos 6 caracteres.")
             .MaximumLength(25).WithMessage("A senha do funcionário não pode ter mais de 25 caracteres.");
 
-        RuleFor(employee => employee.CPF)
+        RuleFor(employee => employee.Cpf)
             .NotEmpty().WithMessage("O CPF do funcionário não pode ser vazio.")
             .Length(11).WithMessage("O CPF do funcionário deve ter exatamente 11 caracteres.");
 
         RuleFor(employee => employee.Id)
             .GreaterThan(0).WithMessage("O id do funcionário deve ser maior que zero.");
-        
     } 
 }
