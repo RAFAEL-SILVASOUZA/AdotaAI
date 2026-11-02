@@ -23,6 +23,8 @@ builder.Services.AddScoped<IPetRepository, PetRepository>();
 builder.Services.AddScoped<AdotaAI.Application.PetService>();
 builder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>();
 builder.Services.AddScoped<AdotaAI.Application.EmployeeService>();
+builder.Services.AddScoped<IVeterinarianRepository, VeterinarianRepository>();
+builder.Services.AddScoped<AdotaAI.Application.VeterinarianService>();
 
 builder.Services.AddControllers();
 
