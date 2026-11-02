@@ -27,6 +27,8 @@ builder.Services.AddScoped<IVeterinarianRepository, VeterinarianRepository>();
 builder.Services.AddScoped<AdotaAI.Application.VeterinarianService>();
 builder.Services.AddScoped<IAttendantRepository, AttendantRepository>();
 builder.Services.AddScoped<AdotaAI.Application.AttendantService>();
+builder.Services.AddScoped<IAdmRepository, AdmRepository>();
+builder.Services.AddScoped<AdotaAI.Application.AdmService>();
 
 builder.Services.AddControllers();
 
