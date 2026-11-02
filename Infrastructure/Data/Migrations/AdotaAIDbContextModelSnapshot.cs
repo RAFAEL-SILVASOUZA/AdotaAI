@@ -52,6 +52,8 @@ namespace AdotaAI.Infrastructure.Data.Migrations
                         .IsUnique();
 
                     b.ToTable("Employees", (string)null);
+
+                    b.UseTptMappingStrategy();
                 });
 
             modelBuilder.Entity("AdotaAI.Domain.Institution", b =>
@@ -213,6 +215,33 @@ namespace AdotaAI.Infrastructure.Data.Migrations
                         .IsUnique();
 
                     b.ToTable("Users", (string)null);
+                });
+
+            modelBuilder.Entity("AdotaAI.Domain.Veterinarian", b =>
+                {
+                    b.HasBaseType("AdotaAI.Domain.Employee");
+
+                    b.Property<string>("Crmv")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("InstitutionId")
+                        .HasColumnType("INTEGER");
+
+                    b.HasIndex("Crmv")
+                        .IsUnique();
+
+                    b.ToTable("Veterinarians", (string)null);
+                });
+
+            modelBuilder.Entity("AdotaAI.Domain.Veterinarian", b =>
+                {
+                    b.HasOne("AdotaAI.Domain.Employee", null)
+                        .WithOne()
+                        .HasForeignKey("AdotaAI.Domain.Veterinarian", "Id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }
