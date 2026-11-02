@@ -8,7 +8,7 @@ public class AdotaAIDbContext(DbContextOptions<AdotaAIDbContext> options) : DbCo
     public DbSet<User> Users => Set<User>();
     public DbSet<Institution> Institutions => Set<Institution>();
     public DbSet<Pet> Pets => Set<Pet>();
-
+    public DbSet<Employee> Employees => Set<Employee>();
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         // Aplica automaticamente todas as classes IEntityTypeConfiguration<T>
