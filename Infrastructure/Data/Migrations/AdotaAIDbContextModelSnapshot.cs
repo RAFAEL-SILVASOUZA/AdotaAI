@@ -217,6 +217,13 @@ namespace AdotaAI.Infrastructure.Data.Migrations
                     b.ToTable("Users", (string)null);
                 });
 
+            modelBuilder.Entity("AdotaAI.Domain.Adm", b =>
+                {
+                    b.HasBaseType("AdotaAI.Domain.Employee");
+
+                    b.ToTable("Adms", (string)null);
+                });
+
             modelBuilder.Entity("AdotaAI.Domain.Attendant", b =>
                 {
                     b.HasBaseType("AdotaAI.Domain.Employee");
@@ -245,6 +252,15 @@ namespace AdotaAI.Infrastructure.Data.Migrations
                         .IsUnique();
 
                     b.ToTable("Veterinarians", (string)null);
+                });
+
+            modelBuilder.Entity("AdotaAI.Domain.Adm", b =>
+                {
+                    b.HasOne("AdotaAI.Domain.Employee", null)
+                        .WithOne()
+                        .HasForeignKey("AdotaAI.Domain.Adm", "Id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("AdotaAI.Domain.Attendant", b =>

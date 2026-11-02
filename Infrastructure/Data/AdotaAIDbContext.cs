@@ -11,6 +11,7 @@ public class AdotaAIDbContext(DbContextOptions<AdotaAIDbContext> options) : DbCo
     public DbSet<Employee> Employees => Set<Employee>();
     public DbSet<Veterinarian> Veterinarians => Set<Veterinarian>();
     public DbSet<Attendant> Attendants => Set<Attendant>();
+    public DbSet<Adm> Adms => Set<Adm>();
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         // Aplica automaticamente todas as classes IEntityTypeConfiguration<T>
