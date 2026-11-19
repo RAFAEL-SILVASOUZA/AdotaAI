@@ -39,7 +39,5 @@ public class InstitutionValidator : AbstractValidator<Institution>
         RuleFor(institution => institution.Photo)
             .NotEmpty().WithMessage("A foto da instituição não pode ser vazia.");
 
-        RuleFor(institution => institution.Id)
-            .GreaterThan(0).WithMessage("O id da instituição deve ser maior que zero.");
     }
 }
