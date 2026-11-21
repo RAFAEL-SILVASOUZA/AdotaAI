@@ -444,35 +444,39 @@ Uma vertical por vez, na ordem abaixo. Cada vertical segue os mesmos 10 passos. 
 > 9. `dotnet build`, `dotnet test`, commit
 > 10. Abra o Swagger (`dotnet run`), chame cada endpoint novo e confira os status (`201`, `200`, `204`, `400`, `404`)
 
-- [ ] **1. Vertical `Institution`**
+- [x] **1. Vertical `Institution`**
   - Comece por ela: `Veterinarian` e `Attendant` têm `InstitutionId`, então a tabela de instituições precisa existir primeiro.
   - Properties: `Id`, `Name`, `Email`, `Phone`, `Address`, `Photo`, `Password`, `Description`, `Document`, `OperatingHours`.
   - Índice único em `Email` (mesmo padrão do `User`).
   - `Document` (CNPJ) e `OperatingHours`: defina o tamanho no mapeamento e diga ao professor o que escolheu.
+  - **Decisão registrada:** Definimos `MaxLength(18)` para `Document` (comporta CPF de 11 dígitos e CNPJ formatado de 18 caracteres) e `MaxLength(100)` para `OperatingHours` (permite descrever dias e turnos de atendimento sem desperdício de espaço)[cite: 4].
 
-- [ ] **2. Vertical `Pet`**
+- [x] **2. Vertical `Pet`**
   - Properties: `Id`, `Name`, `Species`, `Race`, `Age`, `IsFemale`, `PetSize`, `Photo`, `VetRecord`, `BehaviourDesc`, `PetStatus`.
   - Três enums (`Species`, `Size`, `Status`): ficam guardados como `int`, mesmo padrão do `Sex` no `User`.
   - `PetValidator` tem `RuleFor(pet => pet.Id).GreaterThan(0)`: aplique `.When(pet => pet.Id != 0)` como foi feito no `UserValidator`.
 
-- [ ] **3. Vertical `Employee`**
+- [x] **3. Vertical `Employee`**
   - Properties: `Id`, `Name`, `Email`, `Password`, `CPF`.
   - **Decisão obrigatória:** `Veterinarian`, `Attendant` e `Adm` herdam de `Employee`. O EF precisa de uma estratégia para herança (TPH: uma tabela com tudo, ou TPT: uma tabela por tipo). **Pergunte ao professor qual usar antes de escrever o mapeamento** e registre a resposta no README.
+  - **Decisão registrada (Herança):** Adotamos **TPT (Table-Per-Type)** com a tabela base `Employees` e tabelas filhas (`Veterinarians`, `Attendants`, `Adms`) compartilhando a mesma PK, evitando colunas nulas por subtipo e preservando restrições `NOT NULL` e índices únicos no banco[cite: 1, 2, 3, 7].
+  - **Decisão registrada (Hierarquia na API):** Mantivemos a **hierarquia exposta de propósito** no `/api/employee` para gestão unificada da equipe: `GET` lista todos os colaboradores, `PUT /api/employee/{id}` atualiza apenas os dados comuns (`Name`, `Email`, `Password`, `Cpf`) preservando os dados específicos do subtipo, e `DELETE /api/employee/{id}` exclui o cadastro completo das duas tabelas, enquanto criação e campos próprios ficam nas rotas específicas (`/veterinarian`, `/attendant`, `/adm`).
 
-- [ ] **4. Vertical `Veterinarian`**
+- [x] **4. Vertical `Veterinarian`**
   - Properties próprias: `Crmv`, `InstitutionId`.
   - `InstitutionId` é referência: decide se você cria `IInstitutionRepository` como navegação ou guarda só o `int`. Alinhe com o professor.
+  - **Decisão registrada:** Mantivemos a chave escalar `int InstitutionId` sem propriedade de navegação (`Institution?`) na entidade, evitando ciclos de serialização JSON e carregamentos implícitos enquanto garantimos integridade referencial via FK no EF Core e validação prévia com `IInstitutionRepository` no serviço[cite: 7].
 
-- [ ] **5. Vertical `Attendant`**
+- [x] **5. Vertical `Attendant`**
   - Property própria: `InstitutionId`. Mesmas decisões da vertical `Veterinarian`.
+  - **Decisão registrada:** Segue a mesma abordagem de `Veterinarian` (FK escalar `int InstitutionId` + validação de existência via `IInstitutionRepository`)[cite: 2].
 
-- [ ] **6. Vertical `Adm`**
+- [x] **6. Vertical `Adm`**
   - Nenhuma property própria: só as de `Employee`.
 
-- [ ] **7. Manutenção**
+- [x] **7. Manutenção**
   - `chore: criar solution do projeto` (arquivo `.sln` ligando `AdotaAI` e `tests/AdotaAI.Tests`), para `dotnet test` funcionar na raiz.
   - Rode `dotnet build` e `dotnet test` e garanta que nada quebrou.
-
 ---
 
 ## Dicas
