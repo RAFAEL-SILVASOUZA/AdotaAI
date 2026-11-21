@@ -21,6 +21,10 @@ public class InstitutionValidator : AbstractValidator<Institution>
             .MinimumLength(10).WithMessage("O telefone da instituição deve ter pelo menos 10 caracteres.")
             .MaximumLength(15).WithMessage("O telefone da instituição não pode ter mais de 15 caracteres.");
 
+        RuleFor(institution => institution.Document)
+            .NotEmpty().WithMessage("O documento da instituição não pode ser vazio.")
+            .MaximumLength(18).WithMessage("O documento da instituição não pode ter mais de 18 caracteres.");
+
         RuleFor(institution => institution.Address)
             .NotEmpty().WithMessage("O endereço da instituição não pode ser vazio.")
             .MinimumLength(5).WithMessage("O endereço da instituição deve ter pelo menos 5 caracteres.")
@@ -36,8 +40,11 @@ public class InstitutionValidator : AbstractValidator<Institution>
             .MinimumLength(10).WithMessage("A descrição da instituição deve ter pelo menos 10 caracteres.")
             .MaximumLength(500).WithMessage("A descrição da instituição não pode ter mais de 500 caracteres.");
 
+        RuleFor(institution => institution.OperatingHours)
+            .NotEmpty().WithMessage("O horário de funcionamento da instituição não pode ser vazio.")
+            .MaximumLength(100).WithMessage("O horário de funcionamento da instituição não pode ter mais de 100 caracteres.");
+
         RuleFor(institution => institution.Photo)
             .NotEmpty().WithMessage("A foto da instituição não pode ser vazia.");
-
     }
 }

@@ -12,6 +12,9 @@ public class PetValidator : AbstractValidator<Pet>
             .MinimumLength(2).WithMessage("O nome do pet deve ter pelo menos 2 caracteres.")
             .MaximumLength(50).WithMessage("O nome do pet não pode ter mais de 50 caracteres.");
 
+        RuleFor(pet => pet.Species)
+            .IsInEnum().WithMessage("A espécie do pet informada é inválida.");
+
         RuleFor(pet => pet.Race)
             .NotEmpty().WithMessage("A raça do pet não pode ser vazia.")
             .MinimumLength(2).WithMessage("A raça do pet deve ter pelo menos 2 caracteres.")
@@ -19,6 +22,12 @@ public class PetValidator : AbstractValidator<Pet>
 
         RuleFor(pet => pet.Age)
             .InclusiveBetween(0, 30).WithMessage("A idade do pet deve estar entre 0 e 30 anos.");
+
+        RuleFor(pet => pet.IsFemale)
+            .NotNull().WithMessage("O sexo do pet deve ser informado.");
+
+        RuleFor(pet => pet.PetSize)
+            .IsInEnum().WithMessage("O porte do pet informado é inválido.");
 
         RuleFor(pet => pet.Photo)
             .NotEmpty().WithMessage("A foto do pet não pode ser vazia.");
@@ -30,8 +39,8 @@ public class PetValidator : AbstractValidator<Pet>
             .NotEmpty().WithMessage("A descrição de comportamento não pode ser vazia.")
             .MaximumLength(500).WithMessage("A descrição de comportamento não pode ter mais de 500 caracteres.");
 
-        RuleFor(pet => pet.IsFemale)
-        .NotNull().WithMessage("O sexo do pet deve ser informado.");
+        RuleFor(pet => pet.PetStatus)
+            .IsInEnum().WithMessage("O status do pet informado é inválido.");
 
         RuleFor(pet => pet.InstitutionId)
             .GreaterThan(0).WithMessage("O id da instituição deve ser maior que zero.");
