@@ -5,7 +5,10 @@ using FluentValidation;
 
 namespace AdotaAI.Application;
 
-public class PetService(IPetRepository repository, IValidator<Pet> validator)
+public class PetService(
+    IPetRepository repository,
+    IInstitutionRepository institutionRepository,
+    IValidator<Pet> validator)
 {
     public async Task<int> CreateAsync(CreatePetDto dto, CancellationToken ct = default)
     {
@@ -24,6 +27,9 @@ public class PetService(IPetRepository repository, IValidator<Pet> validator)
             institutionId: dto.InstitutionId);
 
         await ValidateAsync(pet, ct);
+
+        if (await institutionRepository.GetByIdAsync(dto.InstitutionId, ct) is null)
+            throw new ValidationFailedException(["Instituição informada não encontrada."]);
 
         await repository.AddAsync(pet, ct);
         return pet.Id;

@@ -12,12 +12,18 @@ namespace AdotaAI.Tests.Unit;
 public class PetServiceTests
 {
     private readonly FakePetRepository _repository = new();
+    private readonly FakeInstitutionRepository _institutionRepository = new();
     private readonly IValidator<Pet> _validator = new PetValidator();
     private readonly PetService _service;
 
     public PetServiceTests()
     {
-        _service = new PetService(_repository, _validator);
+        _institutionRepository.AddAsync(new Institution(
+            0, "Abrigo Amigo", "abrigo@email.com", "44999999999", "12345678987654",
+            "foto.png", "senhaSegura123", "Abrigo dedicado ao resgate de animais.",
+            "08:00 às 18:00", "Rua das Flores, 123")).GetAwaiter().GetResult();
+
+        _service = new PetService(_repository, _institutionRepository, _validator);
     }
 
     private static CreatePetDto CreateDto(

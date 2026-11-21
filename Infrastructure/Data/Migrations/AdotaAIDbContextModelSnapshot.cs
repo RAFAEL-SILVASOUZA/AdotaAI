@@ -165,6 +165,8 @@ namespace AdotaAI.Infrastructure.Data.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("InstitutionId");
+
                     b.ToTable("Pets", (string)null);
                 });
 
@@ -251,7 +253,18 @@ namespace AdotaAI.Infrastructure.Data.Migrations
                     b.HasIndex("Crmv")
                         .IsUnique();
 
+                    b.HasIndex("InstitutionId");
+
                     b.ToTable("Veterinarians", (string)null);
+                });
+
+            modelBuilder.Entity("AdotaAI.Domain.Pet", b =>
+                {
+                    b.HasOne("AdotaAI.Domain.Institution", null)
+                        .WithMany()
+                        .HasForeignKey("InstitutionId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("AdotaAI.Domain.Adm", b =>
@@ -284,6 +297,12 @@ namespace AdotaAI.Infrastructure.Data.Migrations
                         .WithOne()
                         .HasForeignKey("AdotaAI.Domain.Veterinarian", "Id")
                         .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("AdotaAI.Domain.Institution", null)
+                        .WithMany()
+                        .HasForeignKey("InstitutionId")
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });
 #pragma warning restore 612, 618

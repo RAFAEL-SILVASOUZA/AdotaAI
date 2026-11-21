@@ -5,12 +5,18 @@ using FluentValidation;
 
 namespace AdotaAI.Application;
 
-public class VeterinarianService(IVeterinarianRepository veterinarianRepository, IValidator<Veterinarian> validator)
+public class VeterinarianService(
+    IVeterinarianRepository veterinarianRepository,
+    IInstitutionRepository institutionRepository,
+    IValidator<Veterinarian> validator)
 {
     public async Task<VeterinarianResponseDto> AddAsync(CreateVeterinarianDto dto, CancellationToken ct = default)
     {
         var veterinarian = new Veterinarian(0, dto.Name, dto.Email, dto.Password, dto.Cpf, dto.Crmv, dto.InstitutionId);
         await ValidateAsync(veterinarian, ct);
+
+        if (await institutionRepository.GetByIdAsync(dto.InstitutionId, ct) is null)
+            throw new ValidationFailedException(["Instituição informada não encontrada."]);
 
         if (await veterinarianRepository.EmailExistsAsync(dto.Email, ct))
             throw new InvalidOperationException("Já existe um funcionário cadastrado com este e-mail.");
@@ -48,6 +54,9 @@ public class VeterinarianService(IVeterinarianRepository veterinarianRepository,
 
         var updated = new Veterinarian(id, dto.Name, dto.Email, dto.Password, dto.Cpf, dto.Crmv, dto.InstitutionId);
         await ValidateAsync(updated, ct);
+
+        if (await institutionRepository.GetByIdAsync(dto.InstitutionId, ct) is null)
+            throw new ValidationFailedException(["Instituição informada não encontrada."]);
 
         if (existing.Email != dto.Email && await veterinarianRepository.EmailExistsAsync(dto.Email, ct))
             throw new InvalidOperationException("Já existe outro funcionário cadastrado com este e-mail.");

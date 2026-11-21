@@ -24,5 +24,10 @@ public class PetEntityFrameworkConfiguration : IEntityTypeConfiguration<Pet>
         builder.Property(pet => pet.PetStatus).IsRequired();
         builder.Property(pet => pet.VetRecord).IsRequired().HasMaxLength(500);
         builder.Property(pet => pet.InstitutionId).IsRequired();
+
+        builder.HasOne<Institution>()
+            .WithMany()
+            .HasForeignKey(pet => pet.InstitutionId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }

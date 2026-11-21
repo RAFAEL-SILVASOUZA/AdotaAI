@@ -14,6 +14,14 @@ public class VeterinarianEntityFrameworkConfiguration : IEntityTypeConfiguration
             .IsRequired()
             .HasMaxLength(20);
 
+        builder.Property(v => v.InstitutionId)
+            .IsRequired();
+
         builder.HasIndex(v => v.Crmv).IsUnique();
+
+        builder.HasOne<Institution>()
+            .WithMany()
+            .HasForeignKey(v => v.InstitutionId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }

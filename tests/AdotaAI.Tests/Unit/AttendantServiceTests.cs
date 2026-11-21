@@ -1,6 +1,7 @@
 using AdotaAI.Application;
 using AdotaAI.Application.Dto;
 using AdotaAI.Application.Exceptions;
+using AdotaAI.Domain;
 using AdotaAI.Tests.Fakes;
 using AdotaAI.Validation;
 using Xunit;
@@ -10,11 +11,22 @@ namespace AdotaAI.Tests.Unit;
 public class AttendantServiceTests
 {
     private readonly FakeAttendantRepository _repository = new();
+    private readonly FakeInstitutionRepository _institutionRepository = new();
     private readonly AttendantService _service;
 
     public AttendantServiceTests()
     {
-        _service = new AttendantService(_repository, new AttendantValidator());
+        _institutionRepository.AddAsync(new Institution(
+            0, "Abrigo Amigo", "abrigo1@email.com", "44999999999", "12345678987654",
+            "foto.png", "senhaSegura123", "Abrigo dedicado ao resgate de animais.",
+            "08:00 às 18:00", "Rua das Flores, 123")).GetAwaiter().GetResult();
+
+        _institutionRepository.AddAsync(new Institution(
+            0, "Abrigo Esperança", "abrigo2@email.com", "44988888888", "98765432112345",
+            "foto2.png", "senhaSegura123", "Segundo abrigo parceiro.",
+            "08:00 às 18:00", "Avenida Brasil, 456")).GetAwaiter().GetResult();
+
+        _service = new AttendantService(_repository, _institutionRepository, new AttendantValidator());
     }
 
     private static CreateAttendantDto CreateDto(
@@ -80,13 +92,13 @@ public class AttendantServiceTests
     [Fact]
     public async Task GetByInstitutionIdAsync_FiltraAtendentesDaInstituicao()
     {
-        await _service.AddAsync(CreateDto(email: "a1@email.com", cpf: "11111111111", institutionId: 10));
-        await _service.AddAsync(CreateDto(email: "a2@email.com", cpf: "22222222222", institutionId: 20));
+        await _service.AddAsync(CreateDto(email: "a1@email.com", cpf: "11111111111", institutionId: 1));
+        await _service.AddAsync(CreateDto(email: "a2@email.com", cpf: "22222222222", institutionId: 2));
 
-        var list = await _service.GetByInstitutionIdAsync(10);
+        var list = await _service.GetByInstitutionIdAsync(1);
 
         Assert.Single(list);
-        Assert.Equal(10, list[0].InstitutionId);
+        Assert.Equal(1, list[0].InstitutionId);
     }
 
     [Fact]

@@ -1,6 +1,7 @@
 using AdotaAI.Application;
 using AdotaAI.Application.Dto;
 using AdotaAI.Application.Exceptions;
+using AdotaAI.Domain;
 using AdotaAI.Tests.Fakes;
 using AdotaAI.Validation;
 using Xunit;
@@ -10,11 +11,17 @@ namespace AdotaAI.Tests.Unit;
 public class VeterinarianServiceTests
 {
     private readonly FakeVeterinarianRepository _repository = new();
+    private readonly FakeInstitutionRepository _institutionRepository = new();
     private readonly VeterinarianService _service;
 
     public VeterinarianServiceTests()
     {
-        _service = new VeterinarianService(_repository, new VeterinarianValidator());
+        _institutionRepository.AddAsync(new Institution(
+            0, "Abrigo Amigo", "abrigo@email.com", "44999999999", "12345678987654",
+            "foto.png", "senhaSegura123", "Abrigo dedicado ao resgate de animais.",
+            "08:00 às 18:00", "Rua das Flores, 123")).GetAwaiter().GetResult();
+
+        _service = new VeterinarianService(_repository, _institutionRepository, new VeterinarianValidator());
     }
 
     private static CreateVeterinarianDto CreateDto(

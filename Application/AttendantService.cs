@@ -5,12 +5,18 @@ using FluentValidation;
 
 namespace AdotaAI.Application;
 
-public class AttendantService(IAttendantRepository attendantRepository, IValidator<Attendant> validator)
+public class AttendantService(
+    IAttendantRepository attendantRepository,
+    IInstitutionRepository institutionRepository,
+    IValidator<Attendant> validator)
 {
     public async Task<AttendantResponseDto> AddAsync(CreateAttendantDto dto, CancellationToken ct = default)
     {
         var attendant = new Attendant(0, dto.Name, dto.Email, dto.Password, dto.Cpf, dto.InstitutionId);
         await ValidateAsync(attendant, ct);
+
+        if (await institutionRepository.GetByIdAsync(dto.InstitutionId, ct) is null)
+            throw new ValidationFailedException(["Instituição informada não encontrada."]);
 
         if (await attendantRepository.EmailExistsAsync(dto.Email, ct))
             throw new InvalidOperationException("Já existe um funcionário cadastrado com este e-mail.");
@@ -59,6 +65,9 @@ public class AttendantService(IAttendantRepository attendantRepository, IValidat
 
         var updated = new Attendant(id, dto.Name, dto.Email, dto.Password, dto.Cpf, dto.InstitutionId);
         await ValidateAsync(updated, ct);
+
+        if (await institutionRepository.GetByIdAsync(dto.InstitutionId, ct) is null)
+            throw new ValidationFailedException(["Instituição informada não encontrada."]);
 
         if (existing.Email != dto.Email && await attendantRepository.EmailExistsAsync(dto.Email, ct))
             throw new InvalidOperationException("Já existe outro funcionário cadastrado com este e-mail.");
