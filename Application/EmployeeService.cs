@@ -1,19 +1,23 @@
 using AdotaAI.Application.Dto;
+using AdotaAI.Application.Exceptions;
 using AdotaAI.Domain;
+using FluentValidation;
 
 namespace AdotaAI.Application;
 
-public class EmployeeService(IEmployeeRepository employeeRepository)
+public class EmployeeService(IEmployeeRepository employeeRepository, IValidator<Employee> validator)
 {
     public async Task<EmployeeResponseDto> AddAsync(CreateEmployeeDto dto, CancellationToken ct = default)
     {
+        var employee = new Employee(0, dto.Name, dto.Email, dto.Password, dto.Cpf);
+        await ValidateAsync(employee, ct);
+
         if (await employeeRepository.EmailExistsAsync(dto.Email, ct))
             throw new InvalidOperationException("Já existe um funcionário cadastrado com este e-mail.");
 
         if (await employeeRepository.CpfExistsAsync(dto.Cpf, ct))
             throw new InvalidOperationException("Já existe um funcionário cadastrado com este CPF.");
 
-        var employee = new Employee(0, dto.Name, dto.Email, dto.Password, dto.Cpf);
         await employeeRepository.AddAsync(employee, ct);
 
         return new EmployeeResponseDto(employee.Id, employee.Name, employee.Email, employee.Cpf);
@@ -39,18 +43,27 @@ public class EmployeeService(IEmployeeRepository employeeRepository)
         if (existing is null)
             return false;
 
+        var updatedEmployee = new Employee(id, dto.Name, dto.Email, dto.Password, dto.Cpf);
+        await ValidateAsync(updatedEmployee, ct);
+
         if (existing.Email != dto.Email && await employeeRepository.EmailExistsAsync(dto.Email, ct))
             throw new InvalidOperationException("Já existe outro funcionário cadastrado com este e-mail.");
 
         if (existing.Cpf != dto.Cpf && await employeeRepository.CpfExistsAsync(dto.Cpf, ct))
             throw new InvalidOperationException("Já existe outro funcionário cadastrado com este CPF.");
 
-        var updatedEmployee = new Employee(id, dto.Name, dto.Email, dto.Password, dto.Cpf);
         return await employeeRepository.UpdateAsync(updatedEmployee, ct);
     }
 
     public async Task<bool> DeleteAsync(int id, CancellationToken ct = default)
     {
         return await employeeRepository.DeleteAsync(id, ct);
+    }
+
+    private async Task ValidateAsync(Employee employee, CancellationToken ct)
+    {
+        var result = await validator.ValidateAsync(employee, ct);
+        if (!result.IsValid)
+            throw new ValidationFailedException(result.Errors.Select(e => e.ErrorMessage).ToList());
     }
 }

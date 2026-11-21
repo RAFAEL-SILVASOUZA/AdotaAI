@@ -2,6 +2,7 @@ using AdotaAI.Application;
 using AdotaAI.Application.Dto;
 using AdotaAI.Application.Exceptions;
 using AdotaAI.Tests.Fakes;
+using AdotaAI.Validation;
 using Xunit;
 
 namespace AdotaAI.Tests.Unit;
@@ -13,7 +14,7 @@ public class AdmServiceTests
 
     public AdmServiceTests()
     {
-        _service = new AdmService(_repository);
+        _service = new AdmService(_repository, new AdmValidator());
     }
 
     private static CreateAdmDto CreateDto(

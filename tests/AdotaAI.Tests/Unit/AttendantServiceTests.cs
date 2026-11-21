@@ -2,6 +2,7 @@ using AdotaAI.Application;
 using AdotaAI.Application.Dto;
 using AdotaAI.Application.Exceptions;
 using AdotaAI.Tests.Fakes;
+using AdotaAI.Validation;
 using Xunit;
 
 namespace AdotaAI.Tests.Unit;
@@ -13,7 +14,7 @@ public class AttendantServiceTests
 
     public AttendantServiceTests()
     {
-        _service = new AttendantService(_repository);
+        _service = new AttendantService(_repository, new AttendantValidator());
     }
 
     private static CreateAttendantDto CreateDto(

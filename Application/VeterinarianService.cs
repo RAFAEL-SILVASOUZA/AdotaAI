@@ -1,12 +1,17 @@
 using AdotaAI.Application.Dto;
+using AdotaAI.Application.Exceptions;
 using AdotaAI.Domain;
+using FluentValidation;
 
 namespace AdotaAI.Application;
 
-public class VeterinarianService(IVeterinarianRepository veterinarianRepository)
+public class VeterinarianService(IVeterinarianRepository veterinarianRepository, IValidator<Veterinarian> validator)
 {
     public async Task<VeterinarianResponseDto> AddAsync(CreateVeterinarianDto dto, CancellationToken ct = default)
     {
+        var veterinarian = new Veterinarian(0, dto.Name, dto.Email, dto.Password, dto.Cpf, dto.Crmv, dto.InstitutionId);
+        await ValidateAsync(veterinarian, ct);
+
         if (await veterinarianRepository.EmailExistsAsync(dto.Email, ct))
             throw new InvalidOperationException("Já existe um funcionário cadastrado com este e-mail.");
 
@@ -16,7 +21,6 @@ public class VeterinarianService(IVeterinarianRepository veterinarianRepository)
         if (await veterinarianRepository.CrmvExistsAsync(dto.Crmv, ct))
             throw new InvalidOperationException("Já existe um veterinário cadastrado com este CRMV.");
 
-        var veterinarian = new Veterinarian(0, dto.Name, dto.Email, dto.Password, dto.Cpf, dto.Crmv, dto.InstitutionId);
         await veterinarianRepository.AddAsync(veterinarian, ct);
 
         return new VeterinarianResponseDto(veterinarian.Id, veterinarian.Name, veterinarian.Email, veterinarian.Cpf, veterinarian.Crmv, veterinarian.InstitutionId);
@@ -42,6 +46,9 @@ public class VeterinarianService(IVeterinarianRepository veterinarianRepository)
         if (existing is null)
             return false;
 
+        var updated = new Veterinarian(id, dto.Name, dto.Email, dto.Password, dto.Cpf, dto.Crmv, dto.InstitutionId);
+        await ValidateAsync(updated, ct);
+
         if (existing.Email != dto.Email && await veterinarianRepository.EmailExistsAsync(dto.Email, ct))
             throw new InvalidOperationException("Já existe outro funcionário cadastrado com este e-mail.");
 
@@ -51,12 +58,18 @@ public class VeterinarianService(IVeterinarianRepository veterinarianRepository)
         if (existing.Crmv != dto.Crmv && await veterinarianRepository.CrmvExistsAsync(dto.Crmv, ct))
             throw new InvalidOperationException("Já existe outro veterinário cadastrado com este CRMV.");
 
-        var updated = new Veterinarian(id, dto.Name, dto.Email, dto.Password, dto.Cpf, dto.Crmv, dto.InstitutionId);
         return await veterinarianRepository.UpdateAsync(updated, ct);
     }
 
     public async Task<bool> DeleteAsync(int id, CancellationToken ct = default)
     {
         return await veterinarianRepository.DeleteAsync(id, ct);
+    }
+
+    private async Task ValidateAsync(Veterinarian veterinarian, CancellationToken ct)
+    {
+        var result = await validator.ValidateAsync(veterinarian, ct);
+        if (!result.IsValid)
+            throw new ValidationFailedException(result.Errors.Select(e => e.ErrorMessage).ToList());
     }
 }
