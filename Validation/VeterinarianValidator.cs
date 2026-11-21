@@ -16,6 +16,6 @@ public class VeterinarianValidator : AbstractValidator<Veterinarian>
             .MaximumLength(10).WithMessage("O CRMV do veterinário não pode ter mais de 10 caracteres.");
 
         RuleFor(veterinarian => veterinarian.InstitutionId)
-            .GreaterThan(0).WithMessage("O id do veterinário deve ser maior que zero.");
+            .GreaterThan(0).WithMessage("O id da instituição deve ser maior que zero.");
     }
 }
