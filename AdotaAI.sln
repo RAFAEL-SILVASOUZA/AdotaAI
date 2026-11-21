@@ -1,0 +1,33 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AdotaAI", "AdotaAI.csproj", "{C81F0458-3732-49F2-B169-BF56332BAF68}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{67256CA5-2D52-4D4B-80AA-7751B2AB26FD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AdotaAI.Tests", "tests\AdotaAI.Tests\AdotaAI.Tests.csproj", "{BA10CA78-4AE6-4AC4-BCE1-0DA59CBD74E3}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C81F0458-3732-49F2-B169-BF56332BAF68}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C81F0458-3732-49F2-B169-BF56332BAF68}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C81F0458-3732-49F2-B169-BF56332BAF68}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C81F0458-3732-49F2-B169-BF56332BAF68}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BA10CA78-4AE6-4AC4-BCE1-0DA59CBD74E3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BA10CA78-4AE6-4AC4-BCE1-0DA59CBD74E3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BA10CA78-4AE6-4AC4-BCE1-0DA59CBD74E3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BA10CA78-4AE6-4AC4-BCE1-0DA59CBD74E3}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{BA10CA78-4AE6-4AC4-BCE1-0DA59CBD74E3} = {67256CA5-2D52-4D4B-80AA-7751B2AB26FD}
+	EndGlobalSection
+EndGlobal
