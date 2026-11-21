@@ -155,7 +155,6 @@ namespace AdotaAI.Infrastructure.Data.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<int>("Species")
-                        .HasMaxLength(50)
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("VetRecord")
