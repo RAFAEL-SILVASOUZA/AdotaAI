@@ -20,20 +20,20 @@ public class AdmService(IAdmRepository admRepository, IValidator<Adm> validator)
 
         await admRepository.AddAsync(adm, ct);
 
-        return new AdmResponseDto(adm.Id, adm.Name, adm.Email, adm.Cpf);
+        return AdmResponseDto.FromEntity(adm);
     }
 
     public async Task<AdmResponseDto?> GetByIdAsync(int id, CancellationToken ct = default)
     {
         var adm = await admRepository.GetByIdAsync(id, ct);
-        return adm is null ? null : new AdmResponseDto(adm.Id, adm.Name, adm.Email, adm.Cpf);
+        return adm is null ? null : AdmResponseDto.FromEntity(adm);
     }
 
     public async Task<IReadOnlyList<AdmResponseDto>> GetAllAsync(CancellationToken ct = default)
     {
         var list = await admRepository.GetAllAsync(ct);
         return list
-            .Select(a => new AdmResponseDto(a.Id, a.Name, a.Email, a.Cpf))
+            .Select(AdmResponseDto.FromEntity)
             .ToList();
     }
 

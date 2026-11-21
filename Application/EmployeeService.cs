@@ -20,20 +20,20 @@ public class EmployeeService(IEmployeeRepository employeeRepository, IValidator<
 
         await employeeRepository.AddAsync(employee, ct);
 
-        return new EmployeeResponseDto(employee.Id, employee.Name, employee.Email, employee.Cpf);
+        return EmployeeResponseDto.FromEntity(employee);
     }
 
     public async Task<EmployeeResponseDto?> GetByIdAsync(int id, CancellationToken ct = default)
     {
         var employee = await employeeRepository.GetByIdAsync(id, ct);
-        return employee is null ? null : new EmployeeResponseDto(employee.Id, employee.Name, employee.Email, employee.Cpf);
+        return employee is null ? null : EmployeeResponseDto.FromEntity(employee);
     }
 
     public async Task<IReadOnlyList<EmployeeResponseDto>> GetAllAsync(CancellationToken ct = default)
     {
         var employees = await employeeRepository.GetAllAsync(ct);
         return employees
-            .Select(e => new EmployeeResponseDto(e.Id, e.Name, e.Email, e.Cpf))
+            .Select(EmployeeResponseDto.FromEntity)
             .ToList();
     }
 

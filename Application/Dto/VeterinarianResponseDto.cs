@@ -1,3 +1,5 @@
+using AdotaAI.Domain;
+
 namespace AdotaAI.Application.Dto;
 
 public record VeterinarianResponseDto(
@@ -7,4 +9,8 @@ public record VeterinarianResponseDto(
     string Cpf,
     string Crmv,
     int InstitutionId
-);
+)
+{
+    public static VeterinarianResponseDto FromEntity(Veterinarian veterinarian) =>
+        new(veterinarian.Id, veterinarian.Name, veterinarian.Email, veterinarian.Cpf, veterinarian.Crmv, veterinarian.InstitutionId);
+}

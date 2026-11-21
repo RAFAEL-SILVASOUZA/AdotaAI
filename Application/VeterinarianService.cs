@@ -29,20 +29,20 @@ public class VeterinarianService(
 
         await veterinarianRepository.AddAsync(veterinarian, ct);
 
-        return new VeterinarianResponseDto(veterinarian.Id, veterinarian.Name, veterinarian.Email, veterinarian.Cpf, veterinarian.Crmv, veterinarian.InstitutionId);
+        return VeterinarianResponseDto.FromEntity(veterinarian);
     }
 
     public async Task<VeterinarianResponseDto?> GetByIdAsync(int id, CancellationToken ct = default)
     {
         var v = await veterinarianRepository.GetByIdAsync(id, ct);
-        return v is null ? null : new VeterinarianResponseDto(v.Id, v.Name, v.Email, v.Cpf, v.Crmv, v.InstitutionId);
+        return v is null ? null : VeterinarianResponseDto.FromEntity(v);
     }
 
     public async Task<IReadOnlyList<VeterinarianResponseDto>> GetAllAsync(CancellationToken ct = default)
     {
         var list = await veterinarianRepository.GetAllAsync(ct);
         return list
-            .Select(v => new VeterinarianResponseDto(v.Id, v.Name, v.Email, v.Cpf, v.Crmv, v.InstitutionId))
+            .Select(VeterinarianResponseDto.FromEntity)
             .ToList();
     }
 

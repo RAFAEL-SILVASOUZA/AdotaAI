@@ -26,26 +26,20 @@ public class AttendantService(
 
         await attendantRepository.AddAsync(attendant, ct);
 
-        return new AttendantResponseDto(
-            attendant.Id,
-            attendant.Name,
-            attendant.Email,
-            attendant.Cpf,
-            attendant.InstitutionId
-        );
+        return AttendantResponseDto.FromEntity(attendant);
     }
 
     public async Task<AttendantResponseDto?> GetByIdAsync(int id, CancellationToken ct = default)
     {
         var a = await attendantRepository.GetByIdAsync(id, ct);
-        return a is null ? null : new AttendantResponseDto(a.Id, a.Name, a.Email, a.Cpf, a.InstitutionId);
+        return a is null ? null : AttendantResponseDto.FromEntity(a);
     }
 
     public async Task<IReadOnlyList<AttendantResponseDto>> GetAllAsync(CancellationToken ct = default)
     {
         var list = await attendantRepository.GetAllAsync(ct);
         return list
-            .Select(a => new AttendantResponseDto(a.Id, a.Name, a.Email, a.Cpf, a.InstitutionId))
+            .Select(AttendantResponseDto.FromEntity)
             .ToList();
     }
 
@@ -53,7 +47,7 @@ public class AttendantService(
     {
         var list = await attendantRepository.GetByInstitutionIdAsync(institutionId, ct);
         return list
-            .Select(a => new AttendantResponseDto(a.Id, a.Name, a.Email, a.Cpf, a.InstitutionId))
+            .Select(AttendantResponseDto.FromEntity)
             .ToList();
     }
 
