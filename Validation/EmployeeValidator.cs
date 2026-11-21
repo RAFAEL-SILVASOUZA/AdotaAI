@@ -26,7 +26,5 @@ public class EmployeeValidator : AbstractValidator<Employee>
             .NotEmpty().WithMessage("O CPF do funcionário não pode ser vazio.")
             .Length(11).WithMessage("O CPF do funcionário deve ter exatamente 11 caracteres.");
 
-        RuleFor(employee => employee.Id)
-            .GreaterThan(0).WithMessage("O id do funcionário deve ser maior que zero.");
     } 
 }
