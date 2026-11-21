@@ -1,12 +1,8 @@
 namespace AdotaAI.Application.Exceptions;
 
-public class ValidationFailedException : Exception
+public class ValidationFailedException(
+    IReadOnlyList<string> errors,
+    string message = "Dados do usuário são inválidos.") : Exception(message)
 {
-    public ValidationFailedException(IReadOnlyList<string> errors)
-        : base("Dados do usuário são inválidos.")
-    {
-        Errors = errors;
-    }
-
-    public IReadOnlyList<string> Errors { get; }
+    public IReadOnlyList<string> Errors { get; } = errors;
 }
