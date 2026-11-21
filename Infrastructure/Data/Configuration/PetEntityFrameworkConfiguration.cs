@@ -14,7 +14,7 @@ public class PetEntityFrameworkConfiguration : IEntityTypeConfiguration<Pet>
         builder.Property(pet => pet.Id).ValueGeneratedOnAdd();
 
         builder.Property(pet => pet.Name).IsRequired().HasMaxLength(70);
-        builder.Property(pet => pet.Species).IsRequired().HasMaxLength(50);
+        builder.Property(pet => pet.Species).IsRequired();
         builder.Property(pet => pet.Race).IsRequired().HasMaxLength(50);
         builder.Property(pet => pet.Age).IsRequired();
         builder.Property(pet => pet.IsFemale).IsRequired();
