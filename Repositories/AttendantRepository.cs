@@ -12,6 +12,7 @@ public class AttendantRepository(AdotaAIDbContext context)
         return await Set
             .AsNoTracking()
             .Where(a => a.InstitutionId == institutionId)
+            .OrderBy(a => a.Id)
             .ToListAsync(ct);
     }
 }
