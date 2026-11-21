@@ -23,9 +23,6 @@ public class PetValidator : AbstractValidator<Pet>
         RuleFor(pet => pet.Age)
             .InclusiveBetween(0, 30).WithMessage("A idade do pet deve estar entre 0 e 30 anos.");
 
-        RuleFor(pet => pet.IsFemale)
-            .NotNull().WithMessage("O sexo do pet deve ser informado.");
-
         RuleFor(pet => pet.PetSize)
             .IsInEnum().WithMessage("O porte do pet informado é inválido.");
 
